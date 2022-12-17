@@ -1,11 +1,13 @@
 import {useCallback, useState} from "react"
 import { useNavigate, useLocation } from "react-router-dom"
+import {Buffer} from 'buffer';
 
 import qs from "qs"
+import {ActionInstance} from "../ProcessingActions/ProcessingActions";
 
 export interface AppParams {
     autoProcess: boolean,
-    actions: string[],
+    actions: ActionInstance[],
 }
 
 const qpAuto = "auto"
@@ -14,7 +16,7 @@ const qpActions = "actions"
 const encodeParams = (p:AppParams) : string => {
     const query: { [key: string]: string } = {}
     query[qpAuto] = String(p.autoProcess)
-    query[qpActions] = p.actions.join(",")
+    query[qpActions] = Buffer.from(JSON.stringify(p.actions), 'utf8').toString('base64')
     return qs.stringify(query, { skipNulls: true })
 }
 
@@ -30,7 +32,7 @@ const decodeParams = (s:string) : AppParams => {
         out.autoProcess = parsed[qpAuto] === "true"
     }
     if(parsed[qpActions] !== undefined) {
-        out.actions = String(parsed[qpActions]).split(",")
+        out.actions = JSON.parse(Buffer.from(parsed[qpActions] as string, 'base64').toString('utf8'))
     }
     return out
 }

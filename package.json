@@ -14,6 +14,7 @@
     "@types/node": "^16.11.68",
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
+    "buffer": "^6.0.3",
     "monaco-editor": "^0.34.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

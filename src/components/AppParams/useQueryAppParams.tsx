@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom"
 import {Buffer} from 'buffer';
 
 import qs from "qs"
-import {ActionInstance} from "../ProcessingActions/ProcessingActions";
+import {ActionInstance} from "../ProcessingActions/ActionModels";
 
 export interface AppParams {
     autoProcess: boolean,
@@ -13,10 +13,11 @@ export interface AppParams {
 const qpAuto = "auto"
 const qpActions = "actions"
 
+// TODO use protobuf or similar instead for smaller URLs
 const encodeParams = (p:AppParams) : string => {
     const query: { [key: string]: string } = {}
     query[qpAuto] = String(p.autoProcess)
-    query[qpActions] = Buffer.from(JSON.stringify(p.actions), 'utf8').toString('base64')
+    query[qpActions] = Buffer.from(JSON.stringify(p.actions), 'utf8').toString('base64').replaceAll(/=+$/g,"")
     return qs.stringify(query, { skipNulls: true })
 }
 
@@ -49,7 +50,7 @@ export const useQueryAppParams = ():[AppParams, (ap:AppParams) => void] => {
         [history, location]
     )
 
-    console.log("generate from " + location.search)
+    //console.log("generate from " + location.search)
     const params = decodeParams(location.search)
 
     return [

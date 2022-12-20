@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import Codevert from './components/Codevert/Codevert';
+import Codevert from './components/Metamorph/Metamorph';
 import {
     createBrowserRouter,
     RouterProvider,
@@ -10,7 +10,7 @@ import {
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <Codevert />,
+        element: <Metamorph />,
     },
 ]);
 

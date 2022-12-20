@@ -3,7 +3,7 @@ import Grid from '@mui/material/Grid';
 
 import Box from '@mui/material/Box';
 import CodeView from 'components/CodeView/CodeView';
-import {Button, IconButton, ListSubheader, MenuItem, Stack, Typography} from "@mui/material";
+import {Button, IconButton, ListSubheader, MenuItem, Paper, Stack, Typography} from "@mui/material";
 import {useQueryAppParams} from "../AppParams/useQueryAppParams";
 import Checkbox from '@mui/material/Checkbox';
 import Select, {SelectChangeEvent} from '@mui/material/Select';
@@ -12,11 +12,21 @@ import {AVAILABLE_ACTION_GROUPS, AVAILABLE_ACTIONS} from "../ProcessingActions/A
 import {ActionPanel, ActionState} from "../ProcessingActions/ActionPanel";
 import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
 
+export interface ProcessingFailure {
+  lastData:Data
+  failedActionIndex:number
+  error:any
+}
+
+export interface AppState {
+  failedAction?:ProcessingFailure
+  output?:Data
+}
+
 function Codevert() {
   const [appParams, setAppParams] = useQueryAppParams();
   const [input, setInput] = useState<string>(window.localStorage.getItem('INPUT') || "");
-  const [output, setOutput] = useState<string>("");
-  const [failedAction, setFailedAction] = useState<number|undefined>(undefined);
+  const [state, setState] = useState<AppState>({});
 
   useEffect(() => {
     window.localStorage.setItem('INPUT', input);
@@ -29,13 +39,20 @@ function Codevert() {
       try {
         data = AVAILABLE_ACTIONS[ai.code].processor(data, ai.config)
       } catch (err) {
-        setOutput("Failed to execute action " + (i+1) + " (" + AVAILABLE_ACTIONS[ai.code].label + ")\n\nGot error: " + err + "\n\nLast data:\n" + data.asText())
-        setFailedAction(i)
+        setState({
+          failedAction: {
+            lastData: data,
+            error: err,
+            failedActionIndex: i,
+          },
+          output: data,
+        })
         return
       }
     }
-    setOutput(data.asText())
-    setFailedAction(undefined)
+    setState({
+      output: data,
+    })
   };
   useEffect(() => {
     if(appParams.autoProcess) {
@@ -43,7 +60,7 @@ function Codevert() {
     }
   },[input, appParams])
 
-  const changeAutoProcess = (e:React.ChangeEvent<HTMLInputElement>) => {
+  const changeAutoProcess = () => {
     appParams.autoProcess = !appParams.autoProcess
     setAppParams(appParams)
   };
@@ -79,21 +96,22 @@ function Codevert() {
       const deleteMe = () => {
         appParams.actions.splice(index, 1)
         setAppParams(appParams)
+        setState({})
       }
-      let state:ActionState = ActionState.Success
-      if(index == failedAction) state = ActionState.Failure
-      else if(failedAction !== undefined && index > failedAction) state = ActionState.Neutral
+      let actionState:ActionState = ActionState.Success
+      if(index == state.failedAction?.failedActionIndex) actionState = ActionState.Failure
+      else if(state.failedAction !== undefined && index > state.failedAction?.failedActionIndex) actionState = ActionState.Neutral
       return <ActionPanel
           key={index + ":" + ai.code}
           actionInstance={ai}
           setActionInstance={updateMe}
           onDelete={deleteMe}
-          state={state} />
+          state={actionState} />
     });
   };
 
   const renderAvailableActions = () => {
-    const items:any[] = []
+    const items:JSX.Element[] = []
     AVAILABLE_ACTION_GROUPS.forEach(group => {
       items.push(<ListSubheader key={group.label}>{group.label}</ListSubheader>)
       group.codes.forEach(code => {
@@ -106,36 +124,56 @@ function Codevert() {
 
   return (
     <Box className="App">
-      <Box sx={{padding:"8pt"}}>
-        <Grid container spacing={2}>
-          <Grid item xs>
+      <Box>
+        <Grid container>
+          <Grid item xs style={{margin:'4pt'}}>
             <CodeView text={input} setText={setInput} />
           </Grid>
-          <Grid item style={{width:'200pt'}}>
-            <Box sx={{'paddingTop':'12pt'}}>
-              <Typography variant="h6">Controls</Typography>
-              <Stack direction={'row'} alignItems="center">
-                <Button fullWidth disabled={appParams.autoProcess} onClick={doProcessing} variant="contained">Process</Button>
-                <Checkbox checked={appParams.autoProcess} onChange={changeAutoProcess} size={'small'} />
-                <Typography sx={{fontSize:'10pt',fontStyle:'italic'}}>Auto</Typography>
-              </Stack>
-            </Box>
-            <Box sx={{'paddingTop':'12pt'}}>
-              <IconButton aria-label="Collapse All" sx={{float:"right",transform: 'scale(1)',padding:'2pt'}} onClick={collapseAll}><UnfoldLessIcon /></IconButton>
-              <Typography variant="h6">Processing Actions</Typography>
-              <Stack direction={"column"} spacing={"6pt"} sx={{'paddingTop':'4pt'}}>
-                {renderActions()}
-              </Stack>
-            </Box>
-            <Box sx={{'paddingTop':'12pt'}}>
-              <Select displayEmpty value="" id="add-action" onChange={addAction} fullWidth={true}>
-                <MenuItem disabled value=""><em>Add action...</em></MenuItem>
-                {renderAvailableActions()}
-              </Select>
-            </Box>
+          <Grid item style={{width:'200pt',margin:'0 4pt',padding:'4pt'}}>
+            <Paper elevation={4} sx={{padding:'10pt'}}>
+              <Box>
+                <Typography variant="h4" sx={{textAlign:'center'}}>Codevert!</Typography>
+                <Stack direction={'row'} alignItems="center">
+                  <Button fullWidth disabled={appParams.autoProcess} onClick={doProcessing} variant="contained">Process</Button>
+                  <Checkbox checked={appParams.autoProcess} onChange={changeAutoProcess} size={'small'} />
+                  <Typography sx={{fontSize:'10pt',fontStyle:'italic'}}>Auto</Typography>
+                </Stack>
+              </Box>
+              <Box sx={{'paddingTop':'12pt'}}>
+                <IconButton aria-label="Collapse All" sx={{float:"right",transform: 'scale(1)',padding:'2pt'}} onClick={collapseAll}><UnfoldLessIcon /></IconButton>
+                <Typography variant="h6">Processing Actions</Typography>
+                <Stack direction={"column"} spacing={"6pt"} sx={{'paddingTop':'4pt'}}>
+                  {renderActions()}
+                </Stack>
+              </Box>
+              <Box sx={{'paddingTop':'12pt'}}>
+                <Select displayEmpty value="" id="add-action" onChange={addAction} fullWidth={true}>
+                  <MenuItem disabled value=""><em>Add action...</em></MenuItem>
+                  {renderAvailableActions()}
+                </Select>
+              </Box>
+            </Paper>
           </Grid>
           <Grid item lg>
-            <CodeView text={output} />
+            {state.failedAction != undefined && (
+                <Box>
+                  <Paper sx={{padding:'10pt',margin:'4pt',marginBottom:'15pt',backgroundColor:'hsl(355,100%,85%)'}}>
+                    <Typography variant={'h6'}>Failure! Could not <b>{AVAILABLE_ACTIONS[appParams.actions[state.failedAction.failedActionIndex].code].label}</b></Typography>
+                    <Typography>Received the following error when processing action #{state.failedAction.failedActionIndex+1}:</Typography>
+                    <Paper sx={{padding:'10pt',margin:'6pt',backgroundColor:'hsl(355,100%,92%)'}}>
+                      <Typography sx={{fontFamily:'"JetBrains Mono",monospace',fontSize:'10pt'}}>{state.failedAction.error+""}</Typography>
+                    </Paper>
+                  </Paper>
+                </Box>
+            )}
+            {state.output != undefined && typeof state.output?.getValue() != 'string' && (
+                <Box>
+                  <Paper sx={{padding:'10pt',margin:'4pt',marginBottom:'15pt',backgroundColor:'hsl(20,100%,85%)'}}>
+                    <Typography><b>The final result was not a string</b>, the following is an approximation.</Typography>
+                  </Paper>
+                </Box>
+            )}
+            <CodeView text={state.output?.asText()||""} />
           </Grid>
         </Grid>
       </Box>

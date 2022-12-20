@@ -3,24 +3,33 @@ import {
     ACTION_CODE_B64_ENCODE,
     Base64Decoder,
     Base64Encoder,
-    ConfigureBase64, EnsureB64Config, SummarizeBase64, SUPPLY_DEFAULT_B64_CONFIG
+    ConfigureBase64,
+    EnsureB64Config,
+    SummarizeBase64
 } from "./encoding/Base64";
 import {
+    ACTION_CODE_QUERY_JQ,
     ACTION_CODE_QUERY_OBJ,
     ConfigureQueryJSON,
     EnsureQueryDataConfig,
+    QueryJQ,
     QueryObject,
     SummarizeQueryJSON
 } from "./query/QueryData";
 import {
-    ACTION_CODE_FORMAT_JSON, ACTION_CODE_FORMAT_YAML, ACTION_CODE_PARSE_JSON, ACTION_CODE_PARSE_YAML,
-    ConfigureFormatting, EnsureFormattingConfig,
+    ACTION_CODE_FORMAT_JSON,
+    ACTION_CODE_FORMAT_XML,
+    ACTION_CODE_FORMAT_YAML,
+    ConfigureFormatting,
+    ConfigureFormattingIndent,
+    EnsureFormattingConfig,
     FormatJSON,
-    FormatYAML, ParseJSON, ParseYAML,
+    FormatXML,
+    FormatYAML,
     SummarizeFormatting
 } from "./formatting/Format";
 import {ACTION_CODE_STRINGS_LOWER, ACTION_CODE_STRINGS_UPPER, StringToLower, StringToUpper} from "./strings/Strings";
-import {ActionGroup, AvailableAction, ProcessorConfig} from "./ActionModels";
+import {ActionGroup, AvailableAction} from "./ActionModels";
 import {ACTION_CODE_URL_DECODE, ACTION_CODE_URL_ENCODE, URLEncoder} from "./encoding/URL";
 import {
     ACTION_CODE_REGEX_REPLACE,
@@ -29,6 +38,15 @@ import {
     RegexReplace,
     SummarizeRegexReplace
 } from "./regex/Regex";
+import {
+    ACTION_CODE_PARSE_JSON,
+    ACTION_CODE_PARSE_XML,
+    ACTION_CODE_PARSE_YAML,
+    ParseJSON,
+    ParseXML,
+    ParseYAML
+} from "./parsing/Common";
+import {ACTION_CODE_PARSE_JWT, ParseJWT} from "./parsing/JWT";
 
 export const AVAILABLE_ACTION_GROUPS:ActionGroup[] = []
 export const AVAILABLE_ACTIONS:Record<string, AvailableAction> = {}
@@ -83,6 +101,14 @@ registerAvailableAction({
 
 addActionGroup("Data Structures")
 registerAvailableAction({
+    code: ACTION_CODE_QUERY_JQ,
+    label: "JQ",
+    processor: QueryJQ,
+    initConfig: EnsureQueryDataConfig,
+    editPanel: ConfigureQueryJSON,
+    summaryPanel: SummarizeQueryJSON,
+})
+registerAvailableAction({
     code: ACTION_CODE_QUERY_OBJ,
     label: "Query Object Path",
     processor: QueryObject,
@@ -104,6 +130,16 @@ registerAvailableAction({
     label: "Parse YAML",
     processor: ParseYAML,
 })
+registerAvailableAction({
+    code: ACTION_CODE_PARSE_XML,
+    label: "Parse XML",
+    processor: ParseXML,
+})
+registerAvailableAction({
+    code: ACTION_CODE_PARSE_JWT,
+    label: "Parse JWT",
+    processor: ParseJWT,
+})
 
 // ======================================================================================================= Formatting
 
@@ -122,6 +158,14 @@ registerAvailableAction({
     processor: FormatYAML,
     initConfig: EnsureFormattingConfig,
     editPanel: ConfigureFormatting,
+    summaryPanel: SummarizeFormatting,
+})
+registerAvailableAction({
+    code: ACTION_CODE_FORMAT_XML,
+    label: "Format XML",
+    processor: FormatXML,
+    initConfig: EnsureFormattingConfig,
+    editPanel: ConfigureFormattingIndent,
     summaryPanel: SummarizeFormatting,
 })
 

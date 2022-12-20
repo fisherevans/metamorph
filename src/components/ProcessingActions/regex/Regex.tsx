@@ -1,20 +1,7 @@
-import {
-    ConfigurableActionProps,
-    Data,
-    IncompatibleDataType,
-    ObjectData,
-    ProcessorConfig,
-    StringData, TYPE_OBJECT, TYPE_STRING
-} from "../ActionModels";
-import {type} from "os";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import TextField from "@mui/material/TextField";
-import React, {useState} from "react";
+import {Data, IncompatibleDataType, ProcessorConfig, StringData, TYPE_STRING} from "../ActionModels";
+import React from "react";
 import {ActionPanelProps, ActionTextField, SummaryTypography} from "../ActionPanel";
-import {Typography} from "@mui/material";
 import Box from "@mui/material/Box";
-import {EnsureQueryDataConfig} from "../query/QueryData";
 
 export const ACTION_CODE_REGEX_REPLACE = "regex-replace"
 

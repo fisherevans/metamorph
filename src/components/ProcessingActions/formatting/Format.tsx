@@ -1,28 +1,18 @@
-import {
-    Data,
-    IncompatibleDataType,
-    ObjectData,
-    ProcessorConfig,
-    StringData,
-    TYPE_OBJECT,
-    TYPE_STRING
-} from "../ActionModels";
+import {Data, IncompatibleDataType, ProcessorConfig, StringData, TYPE_OBJECT, TYPE_STRING} from "../ActionModels";
 import {ActionCheckbox, ActionPanelProps, ActionTextField, SummaryTypography} from "../ActionPanel";
 import Box from "@mui/material/Box";
 import React from "react";
 import {default as jsonStableStringify} from 'json-stable-stringify';
-import {parse as parseYaml, stringify as yamlStringify } from 'yaml'
-
-import Checkbox from "@mui/material/Checkbox";
-import {FormControlLabel} from "@mui/material";
+import {parse as parseYaml, stringify as yamlStringify} from 'yaml'
+import {default as xml, Options} from 'xml-js';
 import Grid from "@mui/material/Grid";
 import {SchemaOptions, ToStringOptions} from "yaml/dist/options";
 
-export const ACTION_CODE_PARSE_JSON = "parse-json"
 export const ACTION_CODE_FORMAT_JSON = "fmt-json"
 
-export const ACTION_CODE_PARSE_YAML = "parse-yaml"
 export const ACTION_CODE_FORMAT_YAML = "fmt-yaml"
+
+export const ACTION_CODE_FORMAT_XML = "fmt-xml"
 
 export interface FormattingConfig {
     indentDepth:number
@@ -50,7 +40,7 @@ function ensureInputObj(input:Data, stringFn:(s:string)=>object):object {
 }
 
 export function ConfigureFormatting(props:ActionPanelProps) {
-    const updatePath = (v:string) => {
+    const updateIndent = (v:string) => {
         const conf = EnsureFormattingConfig(props.actionInstance.config)
         conf.indentDepth = parseInt(v)
         props.setActionInstance(props.actionInstance)
@@ -63,10 +53,25 @@ export function ConfigureFormatting(props:ActionPanelProps) {
     return (
         <Grid container>
             <Grid item xs={6}>
-                <ActionTextField label="Indent Depth" value={(props.actionInstance.config.formatting?.indentDepth || "") + ""} number={true} update={updatePath} />
+                <ActionTextField label="Indent Depth" value={(props.actionInstance.config.formatting?.indentDepth || "") + ""} number={true} update={updateIndent} />
             </Grid>
             <Grid item xs={6}>
                 <ActionCheckbox label="Sort Keys" value={props.actionInstance.config.formatting?.sortKeys} update={updateSort} />
+            </Grid>
+        </Grid>
+    )
+}
+
+export function ConfigureFormattingIndent(props:ActionPanelProps) {
+    const updateIndent = (v:string) => {
+        const conf = EnsureFormattingConfig(props.actionInstance.config)
+        conf.indentDepth = parseInt(v)
+        props.setActionInstance(props.actionInstance)
+    }
+    return (
+        <Grid container>
+            <Grid item xs={6}>
+                <ActionTextField label="Indent Depth" value={(props.actionInstance.config.formatting?.indentDepth || "") + ""} number={true} update={updateIndent} />
             </Grid>
         </Grid>
     )
@@ -93,14 +98,6 @@ export function SummarizeFormatting(props:ActionPanelProps) {
 
 // ================================================================================= JSON
 
-export function ParseJSON(input:Data,config:ProcessorConfig):Data {
-    if(typeof input.getValue() !== TYPE_STRING) {
-        throw IncompatibleDataType(input)
-    }
-    const obj = JSON.parse(input.getValue())
-    return new ObjectData(obj)
-}
-
 export function FormatJSON(input:Data,config:ProcessorConfig):Data {
     const obj = ensureInputObj(input, JSON.parse)
     const space = config.formatting?.indentDepth || 0
@@ -116,14 +113,6 @@ export function FormatJSON(input:Data,config:ProcessorConfig):Data {
 
 // ================================================================================= YAML
 
-export function ParseYAML(input:Data,config:ProcessorConfig):Data {
-    if(typeof input.getValue() !== TYPE_STRING) {
-        throw IncompatibleDataType(input)
-    }
-    const obj = parseYaml(input.getValue())
-    return new ObjectData(obj)
-}
-
 export function FormatYAML(input:Data,config:ProcessorConfig):Data {
     const obj = ensureInputObj(input, parseYaml)
     const opt:ToStringOptions&SchemaOptions = {
@@ -135,4 +124,16 @@ export function FormatYAML(input:Data,config:ProcessorConfig):Data {
     }
     const yaml = yamlStringify(obj, opt)
     return new StringData(yaml)
+}
+
+// ================================================================================= XML
+
+
+export function FormatXML(input:Data,config:ProcessorConfig):Data {
+    const obj = ensureInputObj(input, (s)=>JSON.parse(xml.xml2json(x)))
+    const opts:Options.JS2XML = {
+        spaces: config.formatting?.indentDepth || 0,
+    }
+    const x = xml.js2xml(obj, opts)
+    return new StringData(x)
 }

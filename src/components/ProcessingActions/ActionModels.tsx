@@ -11,8 +11,6 @@ export interface ProcessorConfig {
     regex?:RegexConfig
 }
 
-export type ProcessorConfigSupplier = () => ProcessorConfig
-
 export const TYPE_STRING = 'string'
 export const TYPE_OBJECT = 'object'
 
@@ -45,12 +43,6 @@ export class ObjectData implements Data {
     asText() {
         return "[JSON Object]\n" + JSON.stringify(this.value, null, 2)
     }
-}
-
-export interface ProcessingFailure {
-    lastData:Data
-    message?:string
-    error:any
 }
 
 export type Processor = (input:Data,config:ProcessorConfig) => Data

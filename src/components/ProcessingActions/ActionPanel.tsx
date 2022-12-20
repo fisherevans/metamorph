@@ -1,13 +1,12 @@
-import React, {useState} from "react";
+import React from "react";
 
 import Box from "@mui/material/Box";
-import {ActionInstance, AvailableAction} from "./ActionModels";
-import {FormControlLabel, IconButton, Paper, Stack, Typography} from "@mui/material";
+import {ActionInstance} from "./ActionModels";
+import {IconButton, Paper, Stack, Typography} from "@mui/material";
 import {AVAILABLE_ACTIONS} from "./ActionSetup";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import {ACTION_CODE_QUERY_OBJ, ConfigureQueryJSON, SummarizeQueryJSON} from "./query/QueryData";
 import TextField from "@mui/material/TextField";
 import {InputProps as StandardInputProps} from "@mui/material/Input/Input";
 import Checkbox from "@mui/material/Checkbox";
@@ -62,11 +61,17 @@ export const ActionPanel = (props:ActionPanelProps) => {
 
 export interface SummaryTypographyProps {text?:string, mono?:boolean}
 export const SummaryTypography = (props:SummaryTypographyProps) => {
-    const sx = {fontFamily:(props.mono ? 'monospace' : 'inherit'),fontSize:'10pt',fontStyle:'italic',opacity:'0.8'}
+    const sx = {
+        fontFamily:(props.mono ? '"JetBrains Mono",monospace' : 'inherit'),
+        fontSize:'10pt',
+        fontStyle:'italic',
+        opacity:'0.8',
+        whiteSpace:'pre-line',
+    }
     return <Typography sx={sx}>{props.text}</Typography>
 }
 
-export interface ActionTextFieldProps {label:string, placeholder?:string, value?:string, update:(v:string)=>void, mono?:boolean, number?:boolean}
+export interface ActionTextFieldProps {label:string, placeholder?:string, value?:string, update:(v:string)=>void, mono?:boolean, multiline?:boolean, number?:boolean}
 export const ActionTextField = (props:ActionTextFieldProps) => {
     const localUpdate = (e: React.FormEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         let v = e.currentTarget.value
@@ -75,7 +80,7 @@ export const ActionTextField = (props:ActionTextFieldProps) => {
         }
         props.update(v)
     }
-    const inputProps:Partial<StandardInputProps> = {sx:{fontFamily:(props.mono ? 'monospace' : 'inherit'),fontSize:'10pt'}}
+    const inputProps:Partial<StandardInputProps> = {sx:{fontFamily:(props.mono ? '"JetBrains Mono",monospace' : 'inherit'),fontSize:'10pt'}}
     if(props.number) {
         inputProps.inputMode = 'numeric';
         //inputProps.pattern = '[0-9]*';
@@ -85,6 +90,7 @@ export const ActionTextField = (props:ActionTextFieldProps) => {
         sx={{margin:0,paddingBottom:'6pt'}}
         focused
         autoFocus
+        multiline={props.multiline||false}
         id="query-path"
         label={props.label}
         size={"small"}

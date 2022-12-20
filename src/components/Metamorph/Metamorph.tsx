@@ -132,7 +132,7 @@ function Metamorph() {
           <Grid item style={{width:'200pt',margin:'0 4pt',padding:'4pt'}}>
             <Paper elevation={4} sx={{padding:'10pt'}}>
               <Box>
-                <Typography variant="h4" sx={{textAlign:'center'}}>MetamorphMetamorph!</Typography>
+                <Typography variant="h4" sx={{textAlign:'center'}}>Metamorph!</Typography>
                 <Stack direction={'row'} alignItems="center">
                   <Button fullWidth disabled={appParams.autoProcess} onClick={doProcessing} variant="contained">Process</Button>
                   <Checkbox checked={appParams.autoProcess} onChange={changeAutoProcess} size={'small'} />

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import Codevert from './components/Metamorph/Metamorph';
+import Metamorph from './components/Metamorph/Metamorph';
 import {
     createBrowserRouter,
     RouterProvider,

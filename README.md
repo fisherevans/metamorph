@@ -1,6 +1,6 @@
-# ![Metamorph](public/banner.png)
+# [![Metamorph](public/banner.png)](https://metamorph.fisherevans.com/)
 
-
+**Hosted here: [metamorph.fisherevans.com](https://metamorph.fisherevans.com/)**
 
 > **metamorph** (plural metamorphs)
 >
@@ -25,8 +25,6 @@ I created this project after getting frustrated with a repetitive procces I was 
 6. pretty print YAML this time in order to find the actual field I was looking for
 
 It may be an extreme example - one that has other underlying issues that are probably worth addressing - but this kind of practice isn't uncommon...
-
-#### Play with it here: https://metamorph.fisherevans.com/
 
 ![sceenshot](media/screenshot.png)
 

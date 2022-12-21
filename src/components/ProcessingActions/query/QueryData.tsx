@@ -60,12 +60,13 @@ export function QueryJQ(input:Data, config:ProcessorConfig):Promise<Data> {
     } else {
         throw IncompatibleDataType(input)
     }
-    return jq.promised.json(obj, config.queryData?.query).then((obj:any) => {
-        if(typeof obj === 'object') {
-            return new ObjectData(obj)
-        }
-        return new StringData(""+obj)
-    })
+    return jq.promised.json(obj, config.queryData?.query)
+        .then((obj:any) => {
+            if(typeof obj === 'object') {
+                return new ObjectData(obj)
+            }
+            return new StringData(""+obj)
+        })
 }
 
 export function SummarizeQueryJSON(props:ActionPanelProps) {

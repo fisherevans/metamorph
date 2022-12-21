@@ -25,10 +25,11 @@ https://stackoverflow.com/questions/54069253/the-usestate-set-method-is-not-refl
 
 export interface ProcessingFailure {
   failedActionIndex:number
-  error:string
+  error:any
 }
 
 export interface AppOutput {
+  successfulActions?:number[]
   failedAction?:ProcessingFailure
   data?:Data
 }
@@ -55,6 +56,7 @@ function Metamorph() {
   const doProcessing = useCallback(async () => {
     console.log("in doProcessing")
     const actions = appConfig.actions
+    const successfulActions:number[] = []
     let data:Data = new StringData(input)
     for(let actionId = 0;actionId < actions.length;actionId++) {
       console.log("executing", actionId, data)
@@ -64,18 +66,21 @@ function Metamorph() {
       } catch (err) {
         console.log("failed", err)
         setOutput({
+          data,
+          successfulActions,
           failedAction : {
-             error: err + "",
+             error: err,
              failedActionIndex: actionId,
           },
-          data: data,
         })
         return
       }
+      successfulActions.push(actionId)
     }
     console.log("done", data)
     setOutput({
-      data: data,
+      data,
+      successfulActions,
     })
   }, [input, appConfig, setOutput]);
 
@@ -110,6 +115,7 @@ function Metamorph() {
         editing: true,
         config: config,
       }])
+      // no need to reset success and fail actions - either auto process, or all before
     })
   }
 
@@ -142,6 +148,11 @@ function Metamorph() {
         ...appConfig,
         actions: actions,
       })
+      setOutput({
+        ...output,
+        failedAction: undefined,
+        successfulActions: undefined,
+      })
     }
     const moveUp = () => {
       if(index <= 0) {
@@ -155,7 +166,8 @@ function Metamorph() {
       })
       setOutput({
         ...output,
-        failedAction: undefined
+        failedAction: undefined,
+        successfulActions: undefined,
       })
     }
     const moveDown = () => {
@@ -170,14 +182,13 @@ function Metamorph() {
       })
       setOutput({
         ...output,
-        failedAction: undefined
+        failedAction: undefined,
+        successfulActions: undefined,
       })
     }
-    // todo - what if never run? what about moving or deleting actions
-    // new state for success stuff?
     let actionState:ActionState = ActionState.Neutral
     if(index == output.failedAction?.failedActionIndex) actionState = ActionState.Failure
-    else if(output.failedAction !== undefined && index < output.failedAction?.failedActionIndex) actionState = ActionState.Success
+    else if(output.successfulActions !== undefined && output.successfulActions.indexOf(index) > -1) actionState = ActionState.Success
     return <ActionPanel
         key={index + ":" + ai.code}
         actionInstance={ai}
@@ -256,7 +267,15 @@ function Metamorph() {
                   <Typography variant={'h6'}>Failure! Could not <b>{AVAILABLE_ACTIONS[appConfig.actions[output.failedAction.failedActionIndex].code].label}</b></Typography>
                   <Typography>Received the following error when processing action #{output.failedAction.failedActionIndex+1}:</Typography>
                   <Paper sx={{padding:'10pt',margin:'6pt',backgroundColor:theme.palette.background.paper}}>
-                    <Typography sx={{fontFamily:'"JetBrains Mono",monospace',fontSize:'10pt'}}>{output.failedAction.error+""}</Typography>
+                    <Typography style={{fontFamily:'"JetBrains Mono",monospace',fontSize:'10pt',wordWrap:'break-word'}}>
+                      {typeof output.failedAction.error === 'string' && output.failedAction.error+"" }
+                      {typeof output.failedAction.error === 'object' && <span>
+                        {output.failedAction.error.message}
+                        <br />
+                        {output.failedAction.error.stack}
+                      </span>}
+                      {/*  {JSON.stringify(err, Object.getOwnPropertyNames(err), 2)}  */}
+                    </Typography>
                   </Paper>
                 </Paper>
               </Box>

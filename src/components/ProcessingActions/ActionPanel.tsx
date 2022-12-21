@@ -114,7 +114,10 @@ export const ActionTextField = (props:ActionTextFieldProps) => {
         }
         props.update(v)
     }
-    const inputProps:Partial<StandardInputProps> = {sx:{fontFamily:(props.mono ? '"JetBrains Mono",monospace' : 'inherit'),fontSize:'10pt'}}
+    const inputProps:Partial<StandardInputProps> = {
+        spellCheck: false,
+        sx:{fontFamily:(props.mono ? '"JetBrains Mono",monospace' : 'inherit'),fontSize:'10pt'},
+    }
     if(props.number) {
         inputProps.inputMode = 'numeric';
         //inputProps.pattern = '[0-9]*';

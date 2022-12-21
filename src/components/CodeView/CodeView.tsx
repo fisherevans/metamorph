@@ -1,6 +1,5 @@
 import React from 'react';
 
-import './CodeView.css';
 import {Stack, TextareaAutosize, Typography} from '@mui/material';
 import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";

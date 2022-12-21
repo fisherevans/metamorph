@@ -98,16 +98,16 @@ registerAvailableAction({
     editPanel: ConfigureQueryJSON,
     summaryPanel: SummarizeQueryJSON,
 })
-registerAvailableAction({
-    code: ActionCode.QUERY_OBJECT,
-    label: "Query Object Path",
-    processor: QueryObject,
-    initConfig: EnsureQueryDataConfig,
-    editPanel: ConfigureQueryJSON,
-    summaryPanel: SummarizeQueryJSON,
-})
+// registerAvailableAction({
+//     code: ActionCode.QUERY_OBJECT,
+//     label: "Query Object Path",
+//     processor: QueryObject,
+//     initConfig: EnsureQueryDataConfig,
+//     editPanel: ConfigureQueryJSON,
+//     summaryPanel: SummarizeQueryJSON,
+// })
 
-// ======================================================================================================= Formatting
+// ======================================================================================================= Parsing
 
 addActionGroup("Parsing")
 registerAvailableAction({

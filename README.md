@@ -6,20 +6,33 @@ This project is the result of the countless times I've google search "base 64 de
 
 So... I decided to make a little app that lets you configure a string of common transformations - and save them as a bookmark!
 
-## Run it locally
+#### Play with it here: https://metamorph.fisherevans.com/
+
+![sceenshot](media/screenshot.png)
+
+## Contributing
+
+### Run it Locally
 
 ```bash
 npm install # once
 npm run start
 ```
 
-#### Colors
+### Add a new Processing Action
 
- - Icon
-   - BG: `#1c0054`
-   - Gradient:
-     - `#ff00ff`
-     - `#aa00ff`
-     - `#5500ff`
-     - `#0000ff`
-     - `#0055ff`
+- Add a new `ActionCode` enum and any config you need to `src/components/AppConfig/protos/model.proto`
+
+  > *We use ProtoBuf for config in order to minimize the size of the data blob we stuff in the URL*
+
+- Run `npm run codegen`
+
+- Follow the patterns in `src/components/ProcessingActions` (i.e. `regex/Regex.tsx`) to create the new function:
+
+  - A processor that actually transform the data
+  - If there's config involved:
+    - an "Ensure*Config'er" to establish the default config values
+    - a "Configure'er" to allow a user to change the config
+    - a "Sumuraize'er" to display a concise version of the current config
+
+- Add a new entry in via `registerAvailableAction(*)` in `src/components/ProcessingActions/ActionSetup.tsx`

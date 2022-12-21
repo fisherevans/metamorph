@@ -17,4 +17,6 @@ module.exports = {
       version: 'detect',
     },
   },
+  rules: {
+  }
 };

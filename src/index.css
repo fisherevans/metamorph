@@ -5,4 +5,23 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+}
+
+code {
+  font-family: "JetBrains Mono",monospace;
+}
+
+:root {
+  --background: #393540;
+  --text-primary: #0f0a17;
+  --text-secondary: #48278b;
+  --accent: #aa00ff;
+}
+
+[data-theme='dark'] {
+  --background: black;
+  --text-primary: white;
+  --text-secondary: grey;
+  --accent: darkred;
 }

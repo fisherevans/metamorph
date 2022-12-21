@@ -12,3 +12,14 @@ So... I decided to make a little app that lets you configure a string of common 
 npm install # once
 npm run start
 ```
+
+#### Colors
+
+ - Icon
+   - BG: `#1c0054`
+   - Gradient:
+     - `#ff00ff`
+     - `#aa00ff`
+     - `#5500ff`
+     - `#0000ff`
+     - `#0055ff`

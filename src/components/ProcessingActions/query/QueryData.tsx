@@ -57,7 +57,7 @@ export function QueryObject(input:Data, config:ProcessorConfig):Data {
     return new StringData(""+obj)
 }
 
-export function QueryJQ(input:Data, config:ProcessorConfig):Data {
+export function QueryJQ(input:Data, config:ProcessorConfig):Promise<Data> {
     let obj
     if(typeof input.getValue() === TYPE_STRING) {
         obj = JSON.parse(input.getValue())
@@ -66,11 +66,12 @@ export function QueryJQ(input:Data, config:ProcessorConfig):Data {
     } else {
         throw IncompatibleDataType(input)
     }
-    obj = jq.json(obj, config.query?.path) // todo move jq.promised.json(xxx).then(?)
-    if(typeof obj === 'object') {
-        return new ObjectData(obj)
-    }
-    return new StringData(""+obj)
+    return jq.promised.json(obj, config.query?.path).then((obj:any) => {
+        if(typeof obj === 'object') {
+            return new ObjectData(obj)
+        }
+        return new StringData(""+obj)
+    })
 }
 
 export function SummarizeQueryJSON(props:ActionPanelProps) {

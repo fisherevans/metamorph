@@ -45,7 +45,7 @@ export class ObjectData implements Data {
     }
 }
 
-export type Processor = (input:Data,config:ProcessorConfig) => Data
+export type Processor = (input:Data,config:ProcessorConfig) => Data|Promise<Data>
 
 export interface ActionInstance {
     code:string

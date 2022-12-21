@@ -10,17 +10,28 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import TextField from "@mui/material/TextField";
 import {InputProps as StandardInputProps} from "@mui/material/Input/Input";
 import Checkbox from "@mui/material/Checkbox";
-
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import {ArrowDropUp} from "@mui/icons-material";
+import Grid from "@mui/material/Grid";
 export enum ActionState {Success,Failure,Neutral}
+import { useTheme } from "@mui/material/styles";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import TripOriginIcon from '@mui/icons-material/TripOrigin';
 
 export type ActionPanelProps = {
     actionInstance:ActionInstance
     setActionInstance:(updated:ActionInstance)=>void
     onDelete:()=>void
+    moveUp:()=>void
+    moveDown:()=>void
     state:ActionState
 }
 
 export const ActionPanel = (props:ActionPanelProps) => {
+    const theme = useTheme();
     const expand = () => {
         props.actionInstance.editing = true;
         props.setActionInstance(props.actionInstance)
@@ -30,31 +41,57 @@ export const ActionPanel = (props:ActionPanelProps) => {
         props.setActionInstance(props.actionInstance)
     }
 
-    const elements = []
+    let panel:JSX.Element|undefined
     const a = AVAILABLE_ACTIONS[props.actionInstance.code]
     if(props.actionInstance.editing && a.editPanel != undefined) {
-        elements.push(a.editPanel(props))
-    }
-    if((a.editPanel == undefined || !props.actionInstance.editing) && a.summaryPanel != undefined) {
-        elements.push(a.summaryPanel(props))
+        panel = a.editPanel(props);
+    } else if((a.editPanel == undefined || !props.actionInstance.editing) && a.summaryPanel != undefined) {
+        panel = a.summaryPanel(props)
     }
 
-    const buttonSx = {float:"right",transform: 'scale(0.75)',padding:'2pt'}
-    let color:number
+    const buttonSx = {padding:'2pt',width:'16pt',height:'16pt',margin:'0 1pt'}
+    const iconSx = {fontSize:'16pt'}
+    const arrowButtonSx = {padding:'1pt 2pt',width:'10pt',height:'8pt',margin:'0 1pt'}
+    const arrowIconSx = {fontSize:'8pt'}
+
+    let icon:JSX.Element|undefined = undefined
+    const statusIconSx = {marginRight:'4pt',fontSize:'12pt', color:theme.palette.success.main}
     switch (props.state) {
-        case ActionState.Success: color = 115; break;
-        case ActionState.Failure: color = 355; break;
-        default: color = 217; // blue
+        case ActionState.Success:
+            icon = <CheckCircleIcon sx={{...statusIconSx,color:theme.palette.success.main}}/>
+            break;
+        case ActionState.Failure:
+            icon = <CancelIcon sx={{...statusIconSx,color:theme.palette.error.main}}/>
+            break;
+        default:
+            icon = <TripOriginIcon sx={{...statusIconSx,color:theme.palette.text.disabled}}/>
     }
     return (
-        <Paper elevation={2} sx={{padding:'2pt',backgroundColor:'hsl('+color+',100%,94%)'}}>
-            <Box>
-                <IconButton aria-label="Delete" sx={buttonSx} onClick={props.onDelete}><DeleteIcon /></IconButton>
-                {a.editPanel != undefined && !props.actionInstance.editing && <IconButton aria-label="Edit" sx={buttonSx} onClick={expand}><EditIcon /></IconButton>}
-                {a.editPanel != undefined && props.actionInstance.editing && <IconButton aria-label="Hide" sx={buttonSx} onClick={collapse}><ExpandLessIcon /></IconButton>}
-                <Typography sx={{ fontSize: '9pt', textTransform: 'uppercase', fontWeight: '700',padding:'0 2pt',paddingTop:'4pt'}}>{AVAILABLE_ACTIONS[props.actionInstance.code].label}</Typography>
-            </Box>
-            {elements.length > 0 && <Box sx={{padding:'0 4pt'}}>{elements}</Box>}
+        <Paper elevation={2} sx={{padding:'2pt'}}>
+            <Grid container>
+                <Grid item xs>
+                    <Stack direction={'row'} alignItems={'center'} style={{padding:'3pt'}}>
+                        {icon && icon}
+                        <Typography sx={{ color:theme.palette.primary.light, fontSize: '9pt', textTransform: 'uppercase', fontWeight: '700',padding:'0 2pt'}}>
+                            {AVAILABLE_ACTIONS[props.actionInstance.code].label}
+                        </Typography>
+                    </Stack>
+                </Grid>
+                <Grid item>
+                    {a.editPanel != undefined && !props.actionInstance.editing && <IconButton aria-label="Edit" sx={buttonSx} onClick={expand}><EditIcon sx={iconSx} /></IconButton>}
+                    {a.editPanel != undefined && props.actionInstance.editing && <IconButton aria-label="Hide" sx={buttonSx} onClick={collapse}><ExpandLessIcon sx={iconSx} /></IconButton>}
+                </Grid>
+                <Grid item>
+                    <IconButton aria-label="Delete" sx={buttonSx} onClick={props.onDelete}><DeleteIcon sx={iconSx} /></IconButton>
+                </Grid>
+                <Grid item>
+                    <Stack style={{padding:'2pt'}}>
+                        <IconButton aria-label="Move Up" sx={arrowButtonSx} onClick={props.moveUp}><PlayArrowIcon sx={{...arrowIconSx,transform:'rotate(-90deg)'}} /></IconButton>
+                        <IconButton aria-label="Move Down" sx={arrowButtonSx} onClick={props.moveDown}><PlayArrowIcon sx={{...arrowIconSx,transform:'rotate(90deg)'}} /></IconButton>
+                    </Stack>
+                </Grid>
+            </Grid>
+            {panel != undefined && <Box sx={{padding:'0 4pt'}}>{panel}</Box>}
         </Paper>
     )
 }

@@ -8,6 +8,7 @@
     "@monaco-editor/react": "^4.4.6",
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.10.10",
+    "@protobuf-ts/plugin": "^2.8.2",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -39,7 +40,8 @@
     "test:unit": "react-app-rewired test",
     "test:lint": "eslint --ext .ts --ext .tsx .",
     "test:lint:fix": "npm run lint -- --fix",
-    "test": "npm run test:lint && npm run test:unit"
+    "test": "npm run test:lint && npm run test:unit",
+    "codegen": "npx protoc --ts_out src/components/AppConfig --proto_path src/components/AppConfig/protos src/components/AppConfig/protos/model.proto"
   },
   "eslintConfig": {
     "extends": [

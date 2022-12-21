@@ -1,7 +1,6 @@
-import {Data, IncompatibleDataType, ObjectData, ProcessorConfig, TYPE_STRING} from "../ActionModels";
+import {Data, IncompatibleDataType, ObjectData, TYPE_STRING} from "../ActionModels";
 import {Buffer} from 'buffer';
-
-export const ACTION_CODE_PARSE_JWT = "parse-jwt"
+import {ProcessorConfig} from "../../AppConfig/model";
 
 export function ParseJWT(input: Data, config: ProcessorConfig): Data {
     if (typeof input.getValue() !== TYPE_STRING) {

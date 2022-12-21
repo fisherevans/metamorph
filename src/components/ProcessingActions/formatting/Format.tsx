@@ -1,4 +1,4 @@
-import {Data, IncompatibleDataType, ProcessorConfig, StringData, TYPE_OBJECT, TYPE_STRING} from "../ActionModels";
+import {Data, IncompatibleDataType, StringData, TYPE_OBJECT, TYPE_STRING} from "../ActionModels";
 import {ActionCheckbox, ActionPanelProps, ActionTextField, SummaryTypography} from "../ActionPanel";
 import Box from "@mui/material/Box";
 import React from "react";
@@ -7,19 +7,10 @@ import {parse as parseYaml, stringify as yamlStringify} from 'yaml'
 import {default as xml, Options} from 'xml-js';
 import Grid from "@mui/material/Grid";
 import {SchemaOptions, ToStringOptions} from "yaml/dist/options";
+import {FormattingConfig, ProcessorConfig} from "../../AppConfig/model";
 
-export const ACTION_CODE_FORMAT_JSON = "fmt-json"
-
-export const ACTION_CODE_FORMAT_YAML = "fmt-yaml"
-
-export const ACTION_CODE_FORMAT_XML = "fmt-xml"
-
-export interface FormattingConfig {
-    indentDepth:number
-    sortKeys:boolean
-}
-
-export function EnsureFormattingConfig(procConf:ProcessorConfig):FormattingConfig {
+export function EnsureFormattingConfig(procConf?:ProcessorConfig):FormattingConfig {
+    procConf = procConf || {}
     if(procConf.formatting === undefined) {
         procConf.formatting = {
             indentDepth:2,
@@ -31,7 +22,7 @@ export function EnsureFormattingConfig(procConf:ProcessorConfig):FormattingConfi
 
 function ensureInputObj(input:Data, stringFn:(s:string)=>object):object {
     if(typeof input.getValue() === TYPE_STRING) {
-        return stringFn(input.getValue())
+        return stringFn(input.getValue() as string)
     } else if(typeof input.getValue() === TYPE_OBJECT) {
         return input.getValue()
     } else {
@@ -53,10 +44,10 @@ export function ConfigureFormatting(props:ActionPanelProps) {
     return (
         <Grid container>
             <Grid item xs={6}>
-                <ActionTextField label="Indent Depth" value={(props.actionInstance.config.formatting?.indentDepth || "") + ""} number={true} update={updateIndent} />
+                <ActionTextField label="Indent Depth" value={(props.actionInstance.config?.formatting?.indentDepth || "") + ""} number={true} update={updateIndent} />
             </Grid>
             <Grid item xs={6}>
-                <ActionCheckbox label="Sort Keys" value={props.actionInstance.config.formatting?.sortKeys} update={updateSort} />
+                <ActionCheckbox label="Sort Keys" value={props.actionInstance.config?.formatting?.sortKeys} update={updateSort} />
             </Grid>
         </Grid>
     )
@@ -71,7 +62,7 @@ export function ConfigureFormattingIndent(props:ActionPanelProps) {
     return (
         <Grid container>
             <Grid item xs={6}>
-                <ActionTextField label="Indent Depth" value={(props.actionInstance.config.formatting?.indentDepth || "") + ""} number={true} update={updateIndent} />
+                <ActionTextField label="Indent Depth" value={(props.actionInstance.config?.formatting?.indentDepth || "") + ""} number={true} update={updateIndent} />
             </Grid>
         </Grid>
     )
@@ -79,7 +70,7 @@ export function ConfigureFormattingIndent(props:ActionPanelProps) {
 
 export function SummarizeFormatting(props:ActionPanelProps) {
     const sum = []
-    const c = props.actionInstance.config.formatting
+    const c = props.actionInstance.config?.formatting
     if(c?.indentDepth != undefined && c.indentDepth > 0) {
         sum.push("Indent: " + c?.indentDepth)
     }

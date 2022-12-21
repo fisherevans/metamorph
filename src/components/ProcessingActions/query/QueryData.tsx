@@ -2,7 +2,6 @@ import {
     Data,
     IncompatibleDataType,
     ObjectData,
-    ProcessorConfig,
     StringData,
     TYPE_OBJECT,
     TYPE_STRING
@@ -11,21 +10,16 @@ import React from "react";
 import {ActionPanelProps, ActionTextField, SummaryTypography} from "../ActionPanel";
 import Box from "@mui/material/Box";
 import {default as jq} from 'jq-web';
+import {ProcessorConfig, QueryDataConfig} from "../../AppConfig/model";
 
-export const ACTION_CODE_QUERY_OBJ = "query-obj"
-export const ACTION_CODE_QUERY_JQ = "query-jq"
-
-export interface QueryDataConfig {
-    path:string
-}
-
-export function EnsureQueryDataConfig(procConf:ProcessorConfig):QueryDataConfig {
-    if(procConf.query === undefined) {
-        procConf.query = {
-            path: "."
+export function EnsureQueryDataConfig(procConf?:ProcessorConfig):QueryDataConfig {
+    procConf = procConf || {}
+    if(procConf.queryData === undefined) {
+        procConf.queryData = {
+            query: "."
         }
     }
-    return procConf.query
+    return procConf.queryData
 }
 
 export function QueryObject(input:Data, config:ProcessorConfig):Data {
@@ -37,7 +31,7 @@ export function QueryObject(input:Data, config:ProcessorConfig):Data {
     } else {
         throw IncompatibleDataType(input)
     }
-    let path = config.query?.path.replace(/\[(\w+)\]/g, '.$1') || "";
+    let path = config.queryData?.query.replace(/\[(\w+)\]/g, '.$1') || "";
     path = path.replace(/^\./, '');
     if(path.length == 0) {
         return input
@@ -66,7 +60,7 @@ export function QueryJQ(input:Data, config:ProcessorConfig):Promise<Data> {
     } else {
         throw IncompatibleDataType(input)
     }
-    return jq.promised.json(obj, config.query?.path).then((obj:any) => {
+    return jq.promised.json(obj, config.queryData?.query).then((obj:any) => {
         if(typeof obj === 'object') {
             return new ObjectData(obj)
         }
@@ -77,7 +71,7 @@ export function QueryJQ(input:Data, config:ProcessorConfig):Promise<Data> {
 export function SummarizeQueryJSON(props:ActionPanelProps) {
     return (
         <Box>
-            <SummaryTypography text={props.actionInstance.config.query?.path} mono={true} />
+            <SummaryTypography text={props.actionInstance.config?.queryData?.query} mono={true} />
         </Box>
     )
 }
@@ -85,12 +79,12 @@ export function SummarizeQueryJSON(props:ActionPanelProps) {
 export function ConfigureQueryJSON(props:ActionPanelProps) {
     const updatePath = (v:string) => {
         const conf = EnsureQueryDataConfig(props.actionInstance.config)
-        conf.path = v
+        conf.query = v
         props.setActionInstance(props.actionInstance)
     }
     return (
         <Box>
-            <ActionTextField label="Query Path" placeholder={".items[1].name"} value={props.actionInstance.config.query?.path} mono={true} multiline={true} update={updatePath} />
+            <ActionTextField label="Query Path" placeholder={".items[1].name"} value={props.actionInstance.config?.queryData?.query} mono={true} multiline={true} update={updatePath} />
         </Box>
     )
 }

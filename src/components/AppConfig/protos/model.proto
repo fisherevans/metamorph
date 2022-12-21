@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+enum ActionCode {
+  UNSET = 0;
+
+  ENCODE_BASE64 = 1;
+  ENCODE_URL = 2;
+
+  DECODE_BASE64 = 11;
+  DECODE_URL = 12;
+
+  FORMAT_JSON = 21;
+  FORMAT_YAML = 22;
+  FORMAT_XML = 23;
+
+  PARSE_JSON = 31;
+  PARSE_YAML = 32;
+  PARSE_XML = 33;
+  PARSE_JWT = 34;
+
+  QUERY_OBJECT = 41;
+  QUERY_JQ = 42;
+
+  REGEX_REPLACE = 51;
+
+  STRING_TO_UPPER = 61;
+  STRING_TO_LOWER = 62;
+}
+
+message AppConfig {
+  bool autoProcess = 1;
+  repeated ActionInstance actions = 2;
+  bool zoomed = 3;
+}
+
+message ActionInstance {
+  ActionCode code = 1;
+  ProcessorConfig config = 2;
+  bool editing = 10;
+}
+
+message ProcessorConfig {
+  optional Base64Config base64 = 10;
+  optional FormattingConfig formatting = 11;
+  optional QueryDataConfig queryData = 12;
+  optional RegexConfig regex = 13;
+}
+
+message Base64Config {
+  bool urlSafe = 1;
+  bool stripPadding = 2;
+}
+
+message FormattingConfig {
+  int32 indentDepth = 1;
+  bool sortKeys = 2;
+}
+
+message QueryDataConfig {
+  string query = 1;
+}
+
+message RegexConfig {
+  string pattern = 1;
+  string replacement = 2;
+}

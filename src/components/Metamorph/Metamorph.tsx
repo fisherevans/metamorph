@@ -7,7 +7,7 @@ import {Button, IconButton, ListSubheader, MenuItem, Paper, Stack, Typography} f
 import {DecodeConfig, EncodeConfig} from "./QueryParamState";
 import Checkbox from '@mui/material/Checkbox';
 import Select, {SelectChangeEvent} from '@mui/material/Select';
-import {ActionInstance, AvailableAction, Data, ProcessorConfig, StringData} from "../ProcessingActions/ActionModels";
+import {AvailableAction, Data, StringData} from "../ProcessingActions/ActionModels";
 import {AVAILABLE_ACTION_GROUPS, AVAILABLE_ACTIONS} from "../ProcessingActions/ActionSetup";
 import {ActionPanel, ActionState} from "../ProcessingActions/ActionPanel";
 import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
@@ -15,7 +15,7 @@ import {useLocation, useNavigate} from "react-router-dom";
 import ZoomOutMapIcon from '@mui/icons-material/ZoomOutMap';
 import ZoomInMapIcon from '@mui/icons-material/ZoomInMap';
 import { useTheme } from "@mui/material/styles";
-import EditIcon from "@mui/icons-material/Edit";
+import {ActionInstance, AppConfig, ProcessorConfig} from "../AppConfig/model";
 
 /*
 Notes:
@@ -26,12 +26,6 @@ https://stackoverflow.com/questions/54069253/the-usestate-set-method-is-not-refl
 export interface ProcessingFailure {
   failedActionIndex:number
   error:string
-}
-
-export interface AppConfig {
-  zoomed:boolean,
-  autoProcess: boolean,
-  actions: ActionInstance[],
 }
 
 export interface AppOutput {
@@ -66,7 +60,7 @@ function Metamorph() {
       console.log("executing", actionId, data)
       const action = actions[actionId]
       try {
-        data = await AVAILABLE_ACTIONS[action.code].processor(data, action.config)
+        data = await AVAILABLE_ACTIONS[action.code].processor(data, action.config || {})
       } catch (err) {
         console.log("failed", err)
         setOutput({

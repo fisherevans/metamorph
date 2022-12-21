@@ -1,7 +1,6 @@
 import React from "react";
 
 import Box from "@mui/material/Box";
-import {ActionInstance} from "./ActionModels";
 import {IconButton, Paper, Stack, Typography} from "@mui/material";
 import {AVAILABLE_ACTIONS} from "./ActionSetup";
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -10,16 +9,14 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import TextField from "@mui/material/TextField";
 import {InputProps as StandardInputProps} from "@mui/material/Input/Input";
 import Checkbox from "@mui/material/Checkbox";
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import {ArrowDropUp} from "@mui/icons-material";
 import Grid from "@mui/material/Grid";
 export enum ActionState {Success,Failure,Neutral}
 import { useTheme } from "@mui/material/styles";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import TripOriginIcon from '@mui/icons-material/TripOrigin';
+import {ActionInstance} from "../AppConfig/model";
 
 export type ActionPanelProps = {
     actionInstance:ActionInstance

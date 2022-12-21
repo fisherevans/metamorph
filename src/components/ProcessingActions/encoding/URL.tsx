@@ -1,8 +1,6 @@
-import {Data, IncompatibleDataType, ProcessorConfig, StringData, TYPE_STRING} from "../ActionModels";
+import {Data, IncompatibleDataType, StringData, TYPE_STRING} from "../ActionModels";
 import React from "react";
-
-export const ACTION_CODE_URL_ENCODE = "url-enc"
-export const ACTION_CODE_URL_DECODE = "url-dec"
+import {ProcessorConfig} from "../../AppConfig/model";
 
 export function URLEncoder(input:Data,config:ProcessorConfig):Data {
     if(typeof input.getValue() !== TYPE_STRING) {

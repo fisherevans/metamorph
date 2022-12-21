@@ -1,7 +1,5 @@
-import {Data, IncompatibleDataType, ProcessorConfig, StringData, TYPE_STRING} from "../ActionModels";
-
-export const ACTION_CODE_STRINGS_UPPER = "str-upper"
-export const ACTION_CODE_STRINGS_LOWER = "str-lower"
+import {Data, IncompatibleDataType, StringData, TYPE_STRING} from "../ActionModels";
+import {ProcessorConfig} from "../../AppConfig/model";
 
 export function StringToUpper(input:Data,config:ProcessorConfig):Data {
     if(typeof input.getValue() !== TYPE_STRING) {

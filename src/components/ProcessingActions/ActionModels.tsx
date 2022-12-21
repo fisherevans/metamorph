@@ -1,15 +1,5 @@
-import {Base64Config} from "./encoding/Base64";
-import {QueryDataConfig} from "./query/QueryData";
 import {ActionPanelProps} from "./ActionPanel";
-import {FormattingConfig} from "./formatting/Format";
-import {RegexConfig} from "./regex/Regex";
-
-export interface ProcessorConfig {
-    b64?:Base64Config
-    query?:QueryDataConfig
-    formatting?:FormattingConfig
-    regex?:RegexConfig
-}
+import {ActionCode, ActionInstance, ProcessorConfig} from "../AppConfig/model";
 
 export const TYPE_STRING = 'string'
 export const TYPE_OBJECT = 'object'
@@ -47,16 +37,10 @@ export class ObjectData implements Data {
 
 export type Processor = (input:Data,config:ProcessorConfig) => Data|Promise<Data>
 
-export interface ActionInstance {
-    code:string
-    editing:boolean
-    config:ProcessorConfig
-}
-
 export const IncompatibleDataType = (d:Data) => "Incompatible data type '" + (typeof d.getValue()) + "'"
 
 export interface AvailableAction {
-    code:string
+    code: ActionCode
     label: string
     processor: Processor
     initConfig?: (conf:ProcessorConfig)=>void
@@ -66,7 +50,7 @@ export interface AvailableAction {
 
 export interface ActionGroup {
     label: string
-    codes: string[]
+    codes: ActionCode[]
 }
 
 export type ConfigurableActionProps = {

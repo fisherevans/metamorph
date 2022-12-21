@@ -1,7 +1,7 @@
 import {Buffer} from 'buffer';
 
 import qs from "qs"
-import {AppConfig} from "./Metamorph";
+import {AppConfig} from "../AppConfig/model";
 
 const qKey = "config"
 
@@ -12,7 +12,7 @@ const isEmpty = (s:any):boolean => {
 // TODO use protobuf or similar instead for smaller URLs
 export const EncodeConfig = (value:AppConfig) : string => {
     const query: { [key: string]: string } = {}
-    query[qKey] = Buffer.from(JSON.stringify(value), 'utf8').toString('base64').replaceAll(/=+$/g,"")
+    query[qKey] = Buffer.from(AppConfig.toBinary(value)).toString('base64').replaceAll(/=+$/g,"")
     return qs.stringify(query, { skipNulls: true })
 }
 
@@ -35,7 +35,7 @@ export const DecodeConfig = (s:string) : AppConfig => {
     }
     if(!isEmpty(parsed[qKey])) {
         try {
-            out = JSON.parse(Buffer.from(parsed[qKey] as string, 'base64').toString('utf8'))
+            out = AppConfig.fromBinary(new Uint8Array(Buffer.from(parsed[qKey] as string, 'base64')))
         } catch (err) {
             console.log("failed to parse config from query string", err)
         }

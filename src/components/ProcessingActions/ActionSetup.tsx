@@ -1,6 +1,4 @@
 import {
-    ACTION_CODE_B64_DECODE,
-    ACTION_CODE_B64_ENCODE,
     Base64Decoder,
     Base64Encoder,
     ConfigureBase64,
@@ -8,8 +6,6 @@ import {
     SummarizeBase64
 } from "./encoding/Base64";
 import {
-    ACTION_CODE_QUERY_JQ,
-    ACTION_CODE_QUERY_OBJ,
     ConfigureQueryJSON,
     EnsureQueryDataConfig,
     QueryJQ,
@@ -17,9 +13,6 @@ import {
     SummarizeQueryJSON
 } from "./query/QueryData";
 import {
-    ACTION_CODE_FORMAT_JSON,
-    ACTION_CODE_FORMAT_XML,
-    ACTION_CODE_FORMAT_YAML,
     ConfigureFormatting,
     ConfigureFormattingIndent,
     EnsureFormattingConfig,
@@ -28,25 +21,22 @@ import {
     FormatYAML,
     SummarizeFormatting
 } from "./formatting/Format";
-import {ACTION_CODE_STRINGS_LOWER, ACTION_CODE_STRINGS_UPPER, StringToLower, StringToUpper} from "./strings/Strings";
+import {StringToLower, StringToUpper} from "./strings/Strings";
 import {ActionGroup, AvailableAction} from "./ActionModels";
-import {ACTION_CODE_URL_DECODE, ACTION_CODE_URL_ENCODE, URLEncoder} from "./encoding/URL";
+import {URLEncoder} from "./encoding/URL";
 import {
-    ACTION_CODE_REGEX_REPLACE,
     ConfigureRegexReplace,
     EnsureRegexConfig,
     RegexReplace,
     SummarizeRegexReplace
 } from "./regex/Regex";
 import {
-    ACTION_CODE_PARSE_JSON,
-    ACTION_CODE_PARSE_XML,
-    ACTION_CODE_PARSE_YAML,
     ParseJSON,
     ParseXML,
     ParseYAML
 } from "./parsing/Common";
-import {ACTION_CODE_PARSE_JWT, ParseJWT} from "./parsing/JWT";
+import {ParseJWT} from "./parsing/JWT";
+import {ActionCode} from "../AppConfig/model";
 
 export const AVAILABLE_ACTION_GROUPS:ActionGroup[] = []
 export const AVAILABLE_ACTIONS:Record<string, AvailableAction> = {}
@@ -60,7 +50,7 @@ const addActionGroup = (label:string) => {
 
 const registerAvailableAction = (action:AvailableAction) => {
     if(action.code in AVAILABLE_ACTIONS) {
-        throw "available action setup is invalid, duplicate code: " + action.code
+        throw "available action setup is invalid, duplicate function: " + action.code
     }
     AVAILABLE_ACTIONS[action.code] = action
     const g = AVAILABLE_ACTION_GROUPS[AVAILABLE_ACTION_GROUPS.length-1]
@@ -71,7 +61,7 @@ const registerAvailableAction = (action:AvailableAction) => {
 
 addActionGroup("Encoding")
 registerAvailableAction({
-    code: ACTION_CODE_B64_ENCODE,
+    code: ActionCode.ENCODE_BASE64,
     label: "Base64 - Encode",
     processor: Base64Encoder,
     initConfig: EnsureB64Config,
@@ -79,7 +69,7 @@ registerAvailableAction({
     summaryPanel: SummarizeBase64,
 })
 registerAvailableAction({
-    code: ACTION_CODE_B64_DECODE,
+    code: ActionCode.DECODE_BASE64,
     label: "Base64 - Decode",
     processor: Base64Decoder,
     initConfig: EnsureB64Config,
@@ -87,12 +77,12 @@ registerAvailableAction({
     summaryPanel: SummarizeBase64,
 })
 registerAvailableAction({
-    code: ACTION_CODE_URL_ENCODE,
+    code: ActionCode.ENCODE_URL,
     label: "URL - Encode",
     processor: URLEncoder,
 })
 registerAvailableAction({
-    code: ACTION_CODE_URL_DECODE,
+    code: ActionCode.DECODE_URL,
     label: "URL - Decode",
     processor: URLEncoder,
 })
@@ -101,7 +91,7 @@ registerAvailableAction({
 
 addActionGroup("Data Structures")
 registerAvailableAction({
-    code: ACTION_CODE_QUERY_JQ,
+    code: ActionCode.QUERY_JQ,
     label: "JQ",
     processor: QueryJQ,
     initConfig: EnsureQueryDataConfig,
@@ -109,7 +99,7 @@ registerAvailableAction({
     summaryPanel: SummarizeQueryJSON,
 })
 registerAvailableAction({
-    code: ACTION_CODE_QUERY_OBJ,
+    code: ActionCode.QUERY_OBJECT,
     label: "Query Object Path",
     processor: QueryObject,
     initConfig: EnsureQueryDataConfig,
@@ -121,22 +111,22 @@ registerAvailableAction({
 
 addActionGroup("Parsing")
 registerAvailableAction({
-    code: ACTION_CODE_PARSE_JSON,
+    code: ActionCode.PARSE_JSON,
     label: "Parse JSON",
     processor: ParseJSON,
 })
 registerAvailableAction({
-    code: ACTION_CODE_PARSE_YAML,
+    code: ActionCode.PARSE_YAML,
     label: "Parse YAML",
     processor: ParseYAML,
 })
 registerAvailableAction({
-    code: ACTION_CODE_PARSE_XML,
+    code: ActionCode.PARSE_XML,
     label: "Parse XML",
     processor: ParseXML,
 })
 registerAvailableAction({
-    code: ACTION_CODE_PARSE_JWT,
+    code: ActionCode.PARSE_JWT,
     label: "Parse JWT",
     processor: ParseJWT,
 })
@@ -145,7 +135,7 @@ registerAvailableAction({
 
 addActionGroup("Pretty Print")
 registerAvailableAction({
-    code: ACTION_CODE_FORMAT_JSON,
+    code: ActionCode.FORMAT_JSON,
     label: "Format JSON",
     processor: FormatJSON,
     initConfig: EnsureFormattingConfig,
@@ -153,7 +143,7 @@ registerAvailableAction({
     summaryPanel: SummarizeFormatting,
 })
 registerAvailableAction({
-    code: ACTION_CODE_FORMAT_YAML,
+    code: ActionCode.FORMAT_YAML,
     label: "Format YAML",
     processor: FormatYAML,
     initConfig: EnsureFormattingConfig,
@@ -161,7 +151,7 @@ registerAvailableAction({
     summaryPanel: SummarizeFormatting,
 })
 registerAvailableAction({
-    code: ACTION_CODE_FORMAT_XML,
+    code: ActionCode.FORMAT_XML,
     label: "Format XML",
     processor: FormatXML,
     initConfig: EnsureFormattingConfig,
@@ -173,7 +163,7 @@ registerAvailableAction({
 
 addActionGroup("Strings")
 registerAvailableAction({
-    code: ACTION_CODE_REGEX_REPLACE,
+    code: ActionCode.REGEX_REPLACE,
     label: "Regex Replace",
     processor: RegexReplace,
     initConfig: EnsureRegexConfig,
@@ -181,12 +171,12 @@ registerAvailableAction({
     summaryPanel: SummarizeRegexReplace,
 })
 registerAvailableAction({
-    code: ACTION_CODE_STRINGS_UPPER,
+    code: ActionCode.STRING_TO_UPPER,
     label: "To Uppercase",
     processor: StringToUpper,
 })
 registerAvailableAction({
-    code: ACTION_CODE_STRINGS_LOWER,
+    code: ActionCode.STRING_TO_LOWER,
     label: "To Lowercase",
     processor: StringToLower,
 })

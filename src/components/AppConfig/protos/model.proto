@@ -25,6 +25,10 @@ enum ActionCode {
 
   STRING_TO_UPPER = 61;
   STRING_TO_LOWER = 62;
+
+  ESCAPE_STRING = 71;
+
+  UNESCAPE_STRING = 81;
 }
 
 message AppConfig {
@@ -44,6 +48,7 @@ message ProcessorConfig {
   optional FormattingConfig formatting = 11;
   optional QueryDataConfig queryData = 12;
   optional RegexConfig regex = 13;
+  optional StringConfig string = 14;
 }
 
 message Base64Config {
@@ -63,4 +68,8 @@ message QueryDataConfig {
 message RegexConfig {
   string pattern = 1;
   string replacement = 2;
+}
+
+message StringConfig {
+  string quoteCharacter = 1;
 }

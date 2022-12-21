@@ -65,6 +65,10 @@ export interface ProcessorConfig {
      * @generated from protobuf field: optional RegexConfig regex = 13;
      */
     regex?: RegexConfig;
+    /**
+     * @generated from protobuf field: optional StringConfig string = 14;
+     */
+    string?: StringConfig;
 }
 /**
  * @generated from protobuf message Base64Config
@@ -113,6 +117,15 @@ export interface RegexConfig {
      * @generated from protobuf field: string replacement = 2;
      */
     replacement: string;
+}
+/**
+ * @generated from protobuf message StringConfig
+ */
+export interface StringConfig {
+    /**
+     * @generated from protobuf field: string quoteCharacter = 1;
+     */
+    quoteCharacter: string;
 }
 /**
  * @generated from protobuf enum ActionCode
@@ -185,7 +198,15 @@ export enum ActionCode {
     /**
      * @generated from protobuf enum value: STRING_TO_LOWER = 62;
      */
-    STRING_TO_LOWER = 62
+    STRING_TO_LOWER = 62,
+    /**
+     * @generated from protobuf enum value: ESCAPE_STRING = 71;
+     */
+    ESCAPE_STRING = 71,
+    /**
+     * @generated from protobuf enum value: UNESCAPE_STRING = 81;
+     */
+    UNESCAPE_STRING = 81
 }
 // @generated message type with reflection information, may provide speed optimized methods
 class AppConfig$Type extends MessageType<AppConfig> {
@@ -316,7 +337,8 @@ class ProcessorConfig$Type extends MessageType<ProcessorConfig> {
             { no: 10, name: "base64", kind: "message", T: () => Base64Config },
             { no: 11, name: "formatting", kind: "message", T: () => FormattingConfig },
             { no: 12, name: "queryData", kind: "message", T: () => QueryDataConfig },
-            { no: 13, name: "regex", kind: "message", T: () => RegexConfig }
+            { no: 13, name: "regex", kind: "message", T: () => RegexConfig },
+            { no: 14, name: "string", kind: "message", T: () => StringConfig }
         ]);
     }
     create(value?: PartialMessage<ProcessorConfig>): ProcessorConfig {
@@ -343,6 +365,9 @@ class ProcessorConfig$Type extends MessageType<ProcessorConfig> {
                 case /* optional RegexConfig regex */ 13:
                     message.regex = RegexConfig.internalBinaryRead(reader, reader.uint32(), options, message.regex);
                     break;
+                case /* optional StringConfig string */ 14:
+                    message.string = StringConfig.internalBinaryRead(reader, reader.uint32(), options, message.string);
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -367,6 +392,9 @@ class ProcessorConfig$Type extends MessageType<ProcessorConfig> {
         /* optional RegexConfig regex = 13; */
         if (message.regex)
             RegexConfig.internalBinaryWrite(message.regex, writer.tag(13, WireType.LengthDelimited).fork(), options).join();
+        /* optional StringConfig string = 14; */
+        if (message.string)
+            StringConfig.internalBinaryWrite(message.string, writer.tag(14, WireType.LengthDelimited).fork(), options).join();
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -586,3 +614,50 @@ class RegexConfig$Type extends MessageType<RegexConfig> {
  * @generated MessageType for protobuf message RegexConfig
  */
 export const RegexConfig = new RegexConfig$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class StringConfig$Type extends MessageType<StringConfig> {
+    constructor() {
+        super("StringConfig", [
+            { no: 1, name: "quoteCharacter", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<StringConfig>): StringConfig {
+        const message = { quoteCharacter: "" };
+        globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
+        if (value !== undefined)
+            reflectionMergePartial<StringConfig>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: StringConfig): StringConfig {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string quoteCharacter */ 1:
+                    message.quoteCharacter = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: StringConfig, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string quoteCharacter = 1; */
+        if (message.quoteCharacter !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.quoteCharacter);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message StringConfig
+ */
+export const StringConfig = new StringConfig$Type();

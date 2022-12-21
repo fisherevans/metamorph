@@ -21,7 +21,14 @@ import {
     FormatYAML,
     SummarizeFormatting
 } from "./formatting/Format";
-import {StringToLower, StringToUpper} from "./strings/Strings";
+import {
+    ConfigureStringConfig,
+    EnsureStringConfig,
+    EscapeString,
+    StringToLower,
+    StringToUpper,
+    SummarizeStringConfig, UnescapeString
+} from "./strings/Strings";
 import {ActionGroup, AvailableAction} from "./ActionModels";
 import {URLEncoder} from "./encoding/URL";
 import {
@@ -179,4 +186,20 @@ registerAvailableAction({
     code: ActionCode.STRING_TO_LOWER,
     label: "To Lowercase",
     processor: StringToLower,
+})
+registerAvailableAction({
+    code: ActionCode.ESCAPE_STRING,
+    label: "Escape String",
+    processor: EscapeString,
+    initConfig: EnsureStringConfig,
+    editPanel: ConfigureStringConfig,
+    summaryPanel: SummarizeStringConfig,
+})
+registerAvailableAction({
+    code: ActionCode.UNESCAPE_STRING,
+    label: "Unescape String",
+    processor: UnescapeString,
+    initConfig: EnsureStringConfig,
+    editPanel: ConfigureStringConfig,
+    summaryPanel: SummarizeStringConfig,
 })

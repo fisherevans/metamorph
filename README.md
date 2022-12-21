@@ -41,6 +41,8 @@ npm run start
 
 ### Add a new Processing Action
 
+A good example to reference is [adding the `Unescape` and `Escape` functions](https://github.com/fisherevans/metamorph/commit/68f8bd684d0b70610a8e5f91082bd8f3814bd617).
+
 - Add a new `ActionCode` enum and any config you need to `src/components/AppConfig/protos/model.proto`
 
   > *We use ProtoBuf for config in order to minimize the size of the data blob we stuff in the URL*

@@ -9,7 +9,6 @@ const isEmpty = (s:any):boolean => {
     return s === undefined || typeof s !== 'string' || s.trim().length === 0
 }
 
-// TODO use protobuf or similar instead for smaller URLs
 export const EncodeConfig = (value:AppConfig) : string => {
     const query: { [key: string]: string } = {}
     query[qKey] = Buffer.from(AppConfig.toBinary(value)).toString('base64').replaceAll(/=+$/g,"")

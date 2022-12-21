@@ -1,10 +1,30 @@
-# Metamorph
+# ![Metamorph](public/banner.png)
 
-> Verb: to undergo a complete change of form, structure, or substance, as transformation by magic or witchcraft.
 
-This project is the result of the countless times I've google search "base 64 decoder" and "json formatter" and pasting those outputs into sublime so I could find/replace stuff. And then doing that over and over while I debug issues.
 
-So... I decided to make a little app that lets you configure a string of common transformations - and save them as a bookmark!
+> **metamorph** (plural metamorphs)
+>
+> - An organism that has undergone metamorphosis
+>
+> **metamorphosis**
+>
+> - A transformation, such as one performed by magic. 
+> - A noticeable change in character, appearance, function or condition.
+>
+> https://en.wiktionary.org/wiki/metamorph
+
+**Metamorph** is a small, client-side webapp that allows you to define a series of repeatable text and data transformations. These configurations are persisted in the URL allowing you to bookmark them for later.
+
+I created this project after getting frustrated with a repetitive procces I was forced to repeat dozens of time while debugging an issue:
+
+1. fetch a JSON payload
+2. pretty print it in order to copy a specific attribute value
+3. Base64 decode that
+4. pretty print again to find another field
+5. un-escape an attribute value
+6. pretty print YAML this time in order to find the actual field I was looking for
+
+It may be an extreme example - one that has other underlying issues that are probably worth addressing - but this kind of practice isn't uncommon...
 
 #### Play with it here: https://metamorph.fisherevans.com/
 

@@ -25,23 +25,27 @@ function b64FromUrl(s:string) {
     return s
 }
 
-export const EncodeUrlState = (config:AppConfig, input?:string) : string => {
-    const query: { [key: string]: string } = {}
-    query[qKeyConfig] = b64ToUrl(Buffer.from(AppConfig.toBinary(config)).toString('base64'))
-    if(input != undefined) {
-        query[qKeyInput] = b64ToUrl(Buffer.from(gzipSync(Buffer.from(input, 'utf8'))).toString('base64'))
-    }
-    return qs.stringify(query, { skipNulls: true })
+export interface EncodedState {
+    config?:string
+    input?:string
+    queryString?:string
 }
 
-export const DecodeUrlState = (s:string) : {config:AppConfig,input?:string} => {
-    const out:{config:AppConfig,input?:string} = {
-        config: {
-            zoomed:false,
-            autoProcess: false,
-            actions: []
-        }
+export const EncodeUrlState = (config:AppConfig, input?:string) : EncodedState => {
+    const state:EncodedState = {}
+    const query: { [key: string]: string } = {}
+    state.config = EncodeAppConfig(config)
+    query[qKeyConfig] = state.config
+    if(input != undefined) {
+        state.input = b64ToUrl(Buffer.from(gzipSync(Buffer.from(input, 'utf8'))).toString('base64'))
+        query[qKeyInput] = state.input
     }
+    state.queryString = qs.stringify(query, { skipNulls: true })
+    return state
+}
+
+export const DecodeQueryStringState = (s:string) : {config?:AppConfig,input?:string} => {
+    const out:{config?:AppConfig,input?:string} = {}
     if(isEmpty(s)) {
         return out
     }
@@ -55,7 +59,7 @@ export const DecodeUrlState = (s:string) : {config:AppConfig,input?:string} => {
     }
     if(!isEmpty(parsed[qKeyConfig])) {
         try {
-            out.config = AppConfig.fromBinary(new Uint8Array(Buffer.from(b64FromUrl(parsed[qKeyConfig] as string), 'base64')))
+            out.config = DecodeAppConfig(parsed[qKeyConfig] as string)
         } catch (err) {
             console.log("failed to parse config from query string", err)
         }
@@ -68,4 +72,20 @@ export const DecodeUrlState = (s:string) : {config:AppConfig,input?:string} => {
         }
     }
     return out
+}
+
+export const EncodeAppConfig = (config:AppConfig):string => {
+    return b64ToUrl(Buffer.from(AppConfig.toBinary(config)).toString('base64'))
+}
+
+export const DecodeAppConfig = (s:string|null):AppConfig|undefined => {
+    if(s === null) {
+        return undefined
+    }
+    try {
+        return AppConfig.fromBinary(new Uint8Array(Buffer.from(b64FromUrl(s), 'base64')))
+    } catch (err) {
+        console.log("failed to decode app config", err)
+    }
+    return undefined
 }

@@ -4,7 +4,7 @@ import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import CodeView from 'components/CodeView/CodeView';
 import {Alert, Button, IconButton, ListSubheader, MenuItem, Paper, Snackbar, Stack, Typography} from "@mui/material";
-import {DecodeUrlState, EncodeUrlState} from "./QueryParamState";
+import {DecodeAppConfig, DecodeQueryStringState, EncodeUrlState} from "./ExternalAppState";
 import Checkbox from '@mui/material/Checkbox';
 import Select, {SelectChangeEvent} from '@mui/material/Select';
 import {AvailableAction, Data, StringData} from "../ProcessingActions/ActionModels";
@@ -23,6 +23,9 @@ https://devtrium.com/posts/async-functions-useeffect
 https://stackoverflow.com/questions/54069253/the-usestate-set-method-is-not-reflecting-a-change-immediately
  */
 
+const LOCAL_STORAGE_CONFIG = "CONFIG"
+const LOCAL_STORAGE_INPUT = "INPUT"
+
 export interface ProcessingFailure {
   failedActionIndex:number
   error:any
@@ -39,20 +42,25 @@ function Metamorph() {
   const location = useLocation()
   const navigate = useNavigate()
 
-  const urlState = DecodeUrlState(location.search)
-  const [appConfig, setAppConfig] = useState<AppConfig>(urlState.config);
-  const [input, setInput] = useState<string>(urlState.input || window.localStorage.getItem('INPUT') || "");
+  const urlState = DecodeQueryStringState(location.search)
+  const [appConfig, setAppConfig] = useState<AppConfig>(urlState.config
+      || DecodeAppConfig(window.localStorage.getItem(LOCAL_STORAGE_CONFIG))
+      || {
+        zoomed: false,
+        autoProcess: false,
+        actions: []
+      });
+  const [input, setInput] = useState<string>(urlState.input || window.localStorage.getItem(LOCAL_STORAGE_INPUT) || "");
   const [output, setOutput] = useState<AppOutput>({});
   const [shareTipOpen, setShareTipOpen] = useState<boolean>(false);
 
   const shareLink = () => {
-    const queryString = EncodeUrlState(appConfig, input)
-    navigate(`${location.pathname}?${queryString}`)
-    const fullLink = window.location.href.replaceAll(/\?.*/g, "") + "?" + queryString
+    const state = EncodeUrlState(appConfig, input)
+    navigate(`${location.pathname}?${state.queryString}`)
+    const fullLink = window.location.href.replaceAll(/\?.*/g, "") + "?" + state.queryString
     navigator.clipboard.writeText(fullLink)
         .then(() => setShareTipOpen(true))
         .catch(err => alert('failed to copy to clipboard: ' + err))
-
   }
 
   const shareTipClose = (event: React.SyntheticEvent | Event, reason?: string) => {
@@ -63,12 +71,15 @@ function Metamorph() {
   };
 
   useEffect(() => {
-    const queryString = EncodeUrlState(appConfig)
-    navigate(`${location.pathname}?${queryString}`)
+    const state = EncodeUrlState(appConfig)
+    navigate(`${location.pathname}?${state.queryString}`)
+    if(state.config != undefined) {
+      window.localStorage.setItem(LOCAL_STORAGE_CONFIG, state.config);
+    }
   }, [appConfig]);
 
   useEffect(() => {
-    window.localStorage.setItem('INPUT', input);
+    window.localStorage.setItem(LOCAL_STORAGE_INPUT, input);
   }, [input]);
 
   const doProcessing = useCallback(async () => {

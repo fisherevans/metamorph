@@ -1,8 +1,8 @@
-import {Data, IncompatibleDataType, StringData, TYPE_STRING} from "../ActionModels";
+import {Data, IncompatibleInputDataType, StringData} from "../ActionModels";
 import React from "react";
 import {ActionPanelProps, ActionTextField, SummaryTypography} from "../ActionPanel";
 import Box from "@mui/material/Box";
-import {ProcessorConfig, RegexConfig} from "../../AppConfig/model";
+import {DataType, ProcessorConfig, RegexConfig} from "../../AppConfig/model";
 
 export function EnsureRegexConfig(procConf?:ProcessorConfig):RegexConfig {
     procConf = procConf || {}
@@ -16,8 +16,8 @@ export function EnsureRegexConfig(procConf?:ProcessorConfig):RegexConfig {
 }
 
 export function RegexReplace(input:Data, config:ProcessorConfig):Data {
-    if(typeof input.getValue() !== TYPE_STRING) {
-        throw IncompatibleDataType(input)
+    if(input.getType() != DataType.STRING) {
+        throw IncompatibleInputDataType(input)
     }
     const conf = EnsureRegexConfig(config)
     // todo add i next to g? make g configurable?

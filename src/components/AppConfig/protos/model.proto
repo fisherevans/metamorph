@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 enum ActionCode {
-  UNSET = 0;
+  UNSET_ACTION_CODE = 0;
 
   ENCODE_BASE64 = 1;
   ENCODE_URL = 2;
@@ -29,6 +29,17 @@ enum ActionCode {
   ESCAPE_STRING = 71;
 
   UNESCAPE_STRING = 81;
+
+  DECOMPRESS = 91;
+
+  COMPRESS_GZIP = 101;
+}
+
+enum DataType {
+  UNSET_DATA_TYPE = 0;
+  STRING = 1;
+  OBJECT = 2;
+  BINARY = 3;
 }
 
 message AppConfig {
@@ -49,11 +60,13 @@ message ProcessorConfig {
   optional QueryDataConfig queryData = 12;
   optional RegexConfig regex = 13;
   optional StringConfig string = 14;
+  optional CompressionConfig compression = 15;
 }
 
 message Base64Config {
   bool urlSafe = 1;
   bool stripPadding = 2;
+  DataType output = 3;
 }
 
 message FormattingConfig {
@@ -72,4 +85,8 @@ message RegexConfig {
 
 message StringConfig {
   string quoteCharacter = 1;
+}
+
+message CompressionConfig {
+  DataType output = 1;
 }

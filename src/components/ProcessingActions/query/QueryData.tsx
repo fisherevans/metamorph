@@ -1,16 +1,14 @@
 import {
     Data,
-    IncompatibleDataType,
+    IncompatibleInputDataType,
     ObjectData,
     StringData,
-    TYPE_OBJECT,
-    TYPE_STRING
 } from "../ActionModels";
 import React from "react";
 import {ActionPanelProps, ActionTextField, SummaryTypography} from "../ActionPanel";
 import Box from "@mui/material/Box";
 import {default as jq} from 'jq-web';
-import {ProcessorConfig, QueryDataConfig} from "../../AppConfig/model";
+import {DataType, ProcessorConfig, QueryDataConfig} from "../../AppConfig/model";
 
 export function EnsureQueryDataConfig(procConf?:ProcessorConfig):QueryDataConfig {
     procConf = procConf || {}
@@ -24,12 +22,12 @@ export function EnsureQueryDataConfig(procConf?:ProcessorConfig):QueryDataConfig
 
 export function QueryObject(input:Data, config:ProcessorConfig):Data {
     let obj
-    if(typeof input.getValue() === TYPE_STRING) {
+    if(input.getType() == DataType.STRING) {
         obj = JSON.parse(input.getValue())
-    } else if(typeof input.getValue() === TYPE_OBJECT) {
+    } else if(input.getType() == DataType.OBJECT) {
         obj = input.getValue()
     } else {
-        throw IncompatibleDataType(input)
+        throw IncompatibleInputDataType(input)
     }
     let path = config.queryData?.query.replace(/\[(\w+)\]/g, '.$1') || "";
     path = path.replace(/^\./, '');
@@ -53,12 +51,12 @@ export function QueryObject(input:Data, config:ProcessorConfig):Data {
 
 export function QueryJQ(input:Data, config:ProcessorConfig):Promise<Data> {
     let obj
-    if(typeof input.getValue() === TYPE_STRING) {
+    if(input.getType() == DataType.STRING) {
         obj = JSON.parse(input.getValue())
-    } else if(typeof input.getValue() === TYPE_OBJECT) {
+    } else if(input.getType() == DataType.OBJECT) {
         obj = input.getValue()
     } else {
-        throw IncompatibleDataType(input)
+        throw IncompatibleInputDataType(input)
     }
     return jq.promised.json(obj, config.queryData?.query)
         .then((obj:any) => {

@@ -1,10 +1,11 @@
-import {Data, IncompatibleDataType, StringData, TYPE_STRING} from "../ActionModels";
+import {BinaryData, Data, IncompatibleInputDataType, InvalidOutputDataType, StringData} from "../ActionModels";
 import {Buffer} from 'buffer';
-import {ActionCheckbox, ActionPanelProps, SummaryTypography} from "../ActionPanel";
+import {ActionCheckbox, ActionPanelProps, ActionSelector, SummaryTypography} from "../ActionPanel";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import React from "react";
-import {Base64Config, ProcessorConfig} from "../../AppConfig/model";
+import {Base64Config, DataType, ProcessorConfig} from "../../AppConfig/model";
+import {Stack} from "@mui/material";
 
 export function EnsureB64Config(procConf?:ProcessorConfig):Base64Config {
     procConf = procConf || {}
@@ -12,6 +13,7 @@ export function EnsureB64Config(procConf?:ProcessorConfig):Base64Config {
         procConf.base64 = {
             stripPadding: false,
             urlSafe: false,
+            output: DataType.STRING,
         }
     }
     return procConf.base64
@@ -19,10 +21,15 @@ export function EnsureB64Config(procConf?:ProcessorConfig):Base64Config {
 
 export function Base64Encoder(input:Data,config:ProcessorConfig):Data {
     const conf = EnsureB64Config(config)
-    if(typeof input.getValue() !== TYPE_STRING) {
-        throw IncompatibleDataType(input)
+    let buffer:Buffer
+    if(input.getType() == DataType.STRING) {
+        buffer = Buffer.from(input.getValue(), 'utf8')
+    } else if(input.getType() == DataType.BINARY) {
+        buffer = Buffer.from(input.getValue() as Uint8Array)
+    } else {
+        throw IncompatibleInputDataType(input)
     }
-    let b64 = Buffer.from(input.getValue(), 'utf8').toString('base64')
+    let b64 = buffer.toString('base64')
     if(conf.urlSafe) {
         b64 = b64.replace(/\//g, '_').replace(/\+/g, '-')
     }
@@ -33,9 +40,9 @@ export function Base64Encoder(input:Data,config:ProcessorConfig):Data {
 }
 
 export function Base64Decoder(input:Data,config:ProcessorConfig):Data {
-    const conf = config.base64 || {} as Base64Config
-    if(typeof input.getValue() !== TYPE_STRING) {
-        throw IncompatibleDataType(input)
+    const conf = EnsureB64Config(config)
+    if(input.getType() != DataType.STRING) {
+        throw IncompatibleInputDataType(input)
     }
     let b64 = input.getValue()
     if(conf.stripPadding && b64.length % 4 != 0 ) {
@@ -44,48 +51,81 @@ export function Base64Decoder(input:Data,config:ProcessorConfig):Data {
     if(conf.urlSafe) {
         b64 = b64.replace(/_/g, '/').replace(/-/g, '+')
     }
-    const str = Buffer.from(b64, 'base64').toString('utf8')
-    return new StringData(str)
+    if(conf.output === DataType.STRING) {
+        return new StringData(Buffer.from(b64, 'base64').toString('utf8'))
+    } else if(conf.output === DataType.BINARY) {
+        return new BinaryData(Buffer.from(b64, 'base64'))
+    } else {
+        throw InvalidOutputDataType(conf.output)
+    }
 }
 
-export function ConfigureBase64(props:ActionPanelProps) {
-    const updateStripPadding = (v:boolean) => {
-        const conf = EnsureB64Config(props.actionInstance.config)
-        conf.stripPadding = v
-        props.setActionInstance(props.actionInstance)
+export function ConfigureBase64(conf:{showOutput:boolean}) {
+    return function ConfigureBase64Inner(props:ActionPanelProps) {
+        const updateStripPadding = (v: boolean) => {
+            const conf = EnsureB64Config(props.actionInstance.config)
+            conf.stripPadding = v
+            props.setActionInstance(props.actionInstance)
+        }
+        const updateUrlSafe = (v: boolean) => {
+            const conf = EnsureB64Config(props.actionInstance.config)
+            conf.urlSafe = v
+            props.setActionInstance(props.actionInstance)
+        }
+        const updateOutput = (v: DataType) => {
+            const conf = EnsureB64Config(props.actionInstance.config)
+            conf.output = v
+            props.setActionInstance(props.actionInstance)
+        }
+        return (
+            <Stack alignItems={"center"}>
+                <Stack direction={"row"}>
+                    <ActionCheckbox label="URL Safe"
+                                    value={props.actionInstance.config?.base64?.urlSafe}
+                                    update={updateUrlSafe}/>
+
+                    <ActionCheckbox label="Strip Padding"
+                                    value={props.actionInstance.config?.base64?.stripPadding}
+                                    update={updateStripPadding}/>
+                </Stack>
+                {conf.showOutput && (
+                    <ActionSelector label="Output Format"
+                                    value={props.actionInstance.config?.base64?.output || DataType.STRING}
+                                    options={[
+                                        {label:"String",value:DataType.STRING},
+                                        {label:"Binary",value:DataType.BINARY}
+                                    ]}
+                                    update={updateOutput}/>
+                )}
+            </Stack>
+        )
     }
-    const updateUrlSafe = (v:boolean) => {
-        const conf = EnsureB64Config(props.actionInstance.config)
-        conf.urlSafe = v
-        props.setActionInstance(props.actionInstance)
-    }
-    return (
-        <Grid container>
-            <Grid item xs={6}>
-                <ActionCheckbox label="URL Safe" value={props.actionInstance.config?.base64?.urlSafe} update={updateUrlSafe} />
-            </Grid>
-            <Grid item xs={6}>
-                <ActionCheckbox label="Strip Padding" value={props.actionInstance.config?.base64?.stripPadding} update={updateStripPadding} />
-            </Grid>
-        </Grid>
-    )
 }
 
-export function SummarizeBase64(props:ActionPanelProps) {
-    const sum = []
-    const c = props.actionInstance.config?.base64
-    if(c?.urlSafe) {
-        sum.push("URL Safe")
+export function SummarizeBase64(conf:{showOutput:boolean}) {
+    return function SummarizeBase64Inner(props:ActionPanelProps) {
+        const sum = []
+        const c = props.actionInstance.config?.base64
+        if (c?.urlSafe) {
+            sum.push("URL Safe")
+        }
+        if (c?.stripPadding) {
+            sum.push("Padding Stripped")
+        }
+        if (c?.stripPadding) {
+            sum.push("Padding Stripped")
+        }
+        if (conf.showOutput) {
+            if(c?.output == DataType.STRING) sum.push("String")
+            if(c?.output == DataType.BINARY) sum.push("Binary")
+        }
+        if (sum.length == 0) {
+            return <Box/>
+        }
+        return (
+            <Box>
+                <SummaryTypography text={sum.join(", ")}/>
+            </Box>
+        )
     }
-    if(c?.stripPadding) {
-        sum.push("Padding Stripped")
-    }
-    if(sum.length == 0) {
-        return <Box />
-    }
-    return (
-        <Box>
-            <SummaryTypography text={sum.join(", ")} />
-        </Box>
-    )
 }

@@ -1,4 +1,4 @@
-import {Data, IncompatibleDataType, StringData, TYPE_OBJECT, TYPE_STRING} from "../ActionModels";
+import {Data, IncompatibleInputDataType, StringData} from "../ActionModels";
 import {ActionCheckbox, ActionPanelProps, ActionTextField, SummaryTypography} from "../ActionPanel";
 import Box from "@mui/material/Box";
 import React from "react";
@@ -7,7 +7,7 @@ import {parse as parseYaml, stringify as yamlStringify} from 'yaml'
 import {default as xml, Options} from 'xml-js';
 import Grid from "@mui/material/Grid";
 import {SchemaOptions, ToStringOptions} from "yaml/dist/options";
-import {FormattingConfig, ProcessorConfig} from "../../AppConfig/model";
+import {DataType, FormattingConfig, ProcessorConfig} from "../../AppConfig/model";
 
 export function EnsureFormattingConfig(procConf?:ProcessorConfig):FormattingConfig {
     procConf = procConf || {}
@@ -21,12 +21,12 @@ export function EnsureFormattingConfig(procConf?:ProcessorConfig):FormattingConf
 }
 
 function ensureInputObj(input:Data, stringFn:(s:string)=>object):object {
-    if(typeof input.getValue() === TYPE_STRING) {
+    if(input.getType() == DataType.STRING) {
         return stringFn(input.getValue() as string)
-    } else if(typeof input.getValue() === TYPE_OBJECT) {
+    } else if(input.getType() == DataType.OBJECT) {
         return input.getValue()
     } else {
-        throw IncompatibleDataType(input)
+        throw IncompatibleInputDataType(input)
     }
 }
 

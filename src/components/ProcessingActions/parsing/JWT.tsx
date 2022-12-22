@@ -1,10 +1,10 @@
-import {Data, IncompatibleDataType, ObjectData, TYPE_STRING} from "../ActionModels";
+import {Data, IncompatibleInputDataType, ObjectData} from "../ActionModels";
 import {Buffer} from 'buffer';
-import {ProcessorConfig} from "../../AppConfig/model";
+import {DataType, ProcessorConfig} from "../../AppConfig/model";
 
 export function ParseJWT(input: Data, config: ProcessorConfig): Data {
-    if (typeof input.getValue() !== TYPE_STRING) {
-        throw IncompatibleDataType(input)
+    if (input.getType() != DataType.STRING) {
+        throw IncompatibleInputDataType(input)
     }
     const parts = input.getValue().split('.')
     if(parts.length != 3) {

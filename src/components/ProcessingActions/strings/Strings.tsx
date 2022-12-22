@@ -1,5 +1,5 @@
-import {Data, IncompatibleDataType, StringData, TYPE_STRING} from "../ActionModels";
-import {ProcessorConfig, StringConfig} from "../../AppConfig/model";
+import {Data, IncompatibleInputDataType, StringData} from "../ActionModels";
+import {DataType, ProcessorConfig, StringConfig} from "../../AppConfig/model";
 import {ActionPanelProps, ActionTextField, SummaryTypography} from "../ActionPanel";
 import Box from "@mui/material/Box";
 import React from "react";
@@ -15,22 +15,22 @@ export function EnsureStringConfig(procConf?:ProcessorConfig):StringConfig {
 }
 
 export function StringToUpper(input:Data,config:ProcessorConfig):Data {
-    if(typeof input.getValue() !== TYPE_STRING) {
-        throw IncompatibleDataType(input)
+    if(input.getType() != DataType.STRING) {
+        throw IncompatibleInputDataType(input)
     }
     return new StringData(input.getValue().toUpperCase())
 }
 
 export function StringToLower(input:Data,config:ProcessorConfig):Data {
-    if(typeof input.getValue() !== TYPE_STRING) {
-        throw IncompatibleDataType(input)
+    if(input.getType() != DataType.STRING) {
+        throw IncompatibleInputDataType(input)
     }
     return new StringData(input.getValue().toLowerCase())
 }
 
 export function EscapeString(input:Data, config:ProcessorConfig):Data {
-    if(typeof input.getValue() !== TYPE_STRING) {
-        throw IncompatibleDataType(input)
+    if(input.getType() != DataType.STRING) {
+        throw IncompatibleInputDataType(input)
     }
     const conf = EnsureStringConfig(config)
     if(conf.quoteCharacter.trim().length === 0) {
@@ -47,8 +47,8 @@ export function EscapeString(input:Data, config:ProcessorConfig):Data {
 }
 
 export function UnescapeString(input:Data, config:ProcessorConfig):Data {
-    if(typeof input.getValue() !== TYPE_STRING) {
-        throw IncompatibleDataType(input)
+    if(input.getType() != DataType.STRING) {
+        throw IncompatibleInputDataType(input)
     }
     const conf = EnsureStringConfig(config)
     if(conf.quoteCharacter.trim().length === 0) {

@@ -44,6 +44,13 @@ import {
 } from "./parsing/Common";
 import {ParseJWT} from "./parsing/JWT";
 import {ActionCode} from "../AppConfig/model";
+import {
+    CompressGzip,
+    ConfigureCompressionConfig,
+    Decompress,
+    EnsureCompressionConfig,
+    SummarizeCompressionConfig
+} from "./compression/Compression";
 
 export const AVAILABLE_ACTION_GROUPS:ActionGroup[] = []
 export const AVAILABLE_ACTIONS:Record<string, AvailableAction> = {}
@@ -72,16 +79,16 @@ registerAvailableAction({
     label: "Base64 - Encode",
     processor: Base64Encoder,
     initConfig: EnsureB64Config,
-    editPanel: ConfigureBase64,
-    summaryPanel: SummarizeBase64,
+    editPanel: ConfigureBase64({showOutput:false}),
+    summaryPanel: SummarizeBase64({showOutput:false}),
 })
 registerAvailableAction({
     code: ActionCode.DECODE_BASE64,
     label: "Base64 - Decode",
     processor: Base64Decoder,
     initConfig: EnsureB64Config,
-    editPanel: ConfigureBase64,
-    summaryPanel: SummarizeBase64,
+    editPanel: ConfigureBase64({showOutput:true}),
+    summaryPanel: SummarizeBase64({showOutput:true}),
 })
 registerAvailableAction({
     code: ActionCode.ENCODE_URL,
@@ -92,6 +99,26 @@ registerAvailableAction({
     code: ActionCode.DECODE_URL,
     label: "URL - Decode",
     processor: URLEncoder,
+})
+
+// ======================================================================================================= COMPRESSION
+
+addActionGroup("Compression")
+registerAvailableAction({
+    code: ActionCode.DECOMPRESS,
+    label: "Decompress",
+    processor: Decompress,
+    initConfig: EnsureCompressionConfig,
+    editPanel: ConfigureCompressionConfig,
+    summaryPanel: SummarizeCompressionConfig,
+})
+registerAvailableAction({
+    code: ActionCode.COMPRESS_GZIP,
+    label: "Compress - GZip",
+    processor: CompressGzip,
+    initConfig: EnsureCompressionConfig,
+    editPanel: ConfigureCompressionConfig,
+    summaryPanel: SummarizeCompressionConfig,
 })
 
 // ======================================================================================================= Query Data

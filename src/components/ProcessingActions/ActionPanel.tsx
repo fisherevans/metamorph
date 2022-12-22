@@ -1,7 +1,7 @@
 import React from "react";
 
 import Box from "@mui/material/Box";
-import {IconButton, Paper, Stack, Typography} from "@mui/material";
+import {IconButton, MenuItem, Paper, Stack, Typography} from "@mui/material";
 import {AVAILABLE_ACTIONS} from "./ActionSetup";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -17,6 +17,8 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import TripOriginIcon from '@mui/icons-material/TripOrigin';
 import {ActionInstance} from "../AppConfig/model";
+import Select, {SelectChangeEvent} from "@mui/material/Select";
+import {AvailableAction} from "./ActionModels";
 
 export type ActionPanelProps = {
     actionInstance:ActionInstance
@@ -105,8 +107,7 @@ export const SummaryTypography = (props:SummaryTypographyProps) => {
     return <Typography sx={sx}>{props.text}</Typography>
 }
 
-export interface ActionTextFieldProps {label:string, placeholder?:string, value?:string, update:(v:string)=>void, mono?:boolean, multiline?:boolean, number?:boolean}
-export const ActionTextField = (props:ActionTextFieldProps) => {
+export const ActionTextField = (props:{label:string, placeholder?:string, value?:string, update:(v:string)=>void, mono?:boolean, multiline?:boolean, number?:boolean}) => {
     const localUpdate = (e: React.FormEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         let v = e.currentTarget.value
         if(props.number) {
@@ -139,13 +140,28 @@ export const ActionTextField = (props:ActionTextFieldProps) => {
     />
 }
 
-export interface ActionCheckboxProps {label:string, value?:boolean, update:(v:boolean)=>void}
-export const ActionCheckbox = (props:ActionCheckboxProps) => {
+export const ActionCheckbox = (props:{label:string, value?:boolean, update:(v:boolean)=>void}) => {
     const localUpdate = (e: React.FormEvent<HTMLInputElement>) => {
         props.update(e.currentTarget.checked)
     }
-    return <Stack direction={"row"} alignItems={'center'}>
-        <Checkbox checked={props.value || false} onChange={localUpdate}  sx={{paddingRight:'2pt'}} />
+    return <Stack direction={"row"} alignItems={'center'} style={{marginRight:'2pt'}}>
+        <Checkbox checked={props.value || false} onChange={localUpdate}  sx={{padding:'2pt'}} />
         <Typography sx={{fontSize:'10pt'}}>{props.label}</Typography>
+    </Stack>
+}
+
+export function ActionSelector<T>(props:{label:string, value?:T, options:{label:string,value:T}[], update:(v:T)=>void}):JSX.Element {
+    const localUpdate = (e: SelectChangeEvent) => {
+        props.update(e.target.value as unknown as T)
+    }
+    const options:JSX.Element[] = []
+    props.options.forEach((option) => {
+        options.push(<MenuItem key={option.label} value={option.value as any}>{option.label}</MenuItem>)
+    })
+    return <Stack direction={"row"} alignItems={'center'}>
+        <Typography>Output:</Typography>
+        <Select displayEmpty value={props.value as any} onChange={localUpdate} sx={{margin:'2pt 4pt'}} size={'small'}>
+            {options}
+        </Select>
     </Stack>
 }

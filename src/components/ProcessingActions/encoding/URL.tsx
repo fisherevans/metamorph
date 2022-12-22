@@ -1,17 +1,17 @@
-import {Data, IncompatibleDataType, StringData, TYPE_STRING} from "../ActionModels";
+import {Data, IncompatibleInputDataType, StringData} from "../ActionModels";
 import React from "react";
-import {ProcessorConfig} from "../../AppConfig/model";
+import {DataType, ProcessorConfig} from "../../AppConfig/model";
 
 export function URLEncoder(input:Data,config:ProcessorConfig):Data {
-    if(typeof input.getValue() !== TYPE_STRING) {
-        throw IncompatibleDataType(input)
+    if(input.getType() != DataType.STRING) {
+        throw IncompatibleInputDataType(input)
     }
     return new StringData(encodeURIComponent(input.getValue()))
 }
 
 export function URLDecoder(input:Data,config:ProcessorConfig):Data {
-    if(typeof input.getValue() !== TYPE_STRING) {
-        throw IncompatibleDataType(input)
+    if(input.getType() != DataType.STRING) {
+        throw IncompatibleInputDataType(input)
     }
     return new StringData(decodeURIComponent(input.getValue()))
 }

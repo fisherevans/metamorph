@@ -69,6 +69,10 @@ export interface ProcessorConfig {
      * @generated from protobuf field: optional StringConfig string = 14;
      */
     string?: StringConfig;
+    /**
+     * @generated from protobuf field: optional CompressionConfig compression = 15;
+     */
+    compression?: CompressionConfig;
 }
 /**
  * @generated from protobuf message Base64Config
@@ -82,6 +86,10 @@ export interface Base64Config {
      * @generated from protobuf field: bool stripPadding = 2;
      */
     stripPadding: boolean;
+    /**
+     * @generated from protobuf field: DataType output = 3;
+     */
+    output: DataType;
 }
 /**
  * @generated from protobuf message FormattingConfig
@@ -128,13 +136,22 @@ export interface StringConfig {
     quoteCharacter: string;
 }
 /**
+ * @generated from protobuf message CompressionConfig
+ */
+export interface CompressionConfig {
+    /**
+     * @generated from protobuf field: DataType output = 1;
+     */
+    output: DataType;
+}
+/**
  * @generated from protobuf enum ActionCode
  */
 export enum ActionCode {
     /**
-     * @generated from protobuf enum value: UNSET = 0;
+     * @generated from protobuf enum value: UNSET_ACTION_CODE = 0;
      */
-    UNSET = 0,
+    UNSET_ACTION_CODE = 0,
     /**
      * @generated from protobuf enum value: ENCODE_BASE64 = 1;
      */
@@ -206,7 +223,36 @@ export enum ActionCode {
     /**
      * @generated from protobuf enum value: UNESCAPE_STRING = 81;
      */
-    UNESCAPE_STRING = 81
+    UNESCAPE_STRING = 81,
+    /**
+     * @generated from protobuf enum value: DECOMPRESS = 91;
+     */
+    DECOMPRESS = 91,
+    /**
+     * @generated from protobuf enum value: COMPRESS_GZIP = 101;
+     */
+    COMPRESS_GZIP = 101
+}
+/**
+ * @generated from protobuf enum DataType
+ */
+export enum DataType {
+    /**
+     * @generated from protobuf enum value: UNSET_DATA_TYPE = 0;
+     */
+    UNSET_DATA_TYPE = 0,
+    /**
+     * @generated from protobuf enum value: STRING = 1;
+     */
+    STRING = 1,
+    /**
+     * @generated from protobuf enum value: OBJECT = 2;
+     */
+    OBJECT = 2,
+    /**
+     * @generated from protobuf enum value: BINARY = 3;
+     */
+    BINARY = 3
 }
 // @generated message type with reflection information, may provide speed optimized methods
 class AppConfig$Type extends MessageType<AppConfig> {
@@ -338,7 +384,8 @@ class ProcessorConfig$Type extends MessageType<ProcessorConfig> {
             { no: 11, name: "formatting", kind: "message", T: () => FormattingConfig },
             { no: 12, name: "queryData", kind: "message", T: () => QueryDataConfig },
             { no: 13, name: "regex", kind: "message", T: () => RegexConfig },
-            { no: 14, name: "string", kind: "message", T: () => StringConfig }
+            { no: 14, name: "string", kind: "message", T: () => StringConfig },
+            { no: 15, name: "compression", kind: "message", T: () => CompressionConfig }
         ]);
     }
     create(value?: PartialMessage<ProcessorConfig>): ProcessorConfig {
@@ -368,6 +415,9 @@ class ProcessorConfig$Type extends MessageType<ProcessorConfig> {
                 case /* optional StringConfig string */ 14:
                     message.string = StringConfig.internalBinaryRead(reader, reader.uint32(), options, message.string);
                     break;
+                case /* optional CompressionConfig compression */ 15:
+                    message.compression = CompressionConfig.internalBinaryRead(reader, reader.uint32(), options, message.compression);
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -395,6 +445,9 @@ class ProcessorConfig$Type extends MessageType<ProcessorConfig> {
         /* optional StringConfig string = 14; */
         if (message.string)
             StringConfig.internalBinaryWrite(message.string, writer.tag(14, WireType.LengthDelimited).fork(), options).join();
+        /* optional CompressionConfig compression = 15; */
+        if (message.compression)
+            CompressionConfig.internalBinaryWrite(message.compression, writer.tag(15, WireType.LengthDelimited).fork(), options).join();
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -410,11 +463,12 @@ class Base64Config$Type extends MessageType<Base64Config> {
     constructor() {
         super("Base64Config", [
             { no: 1, name: "urlSafe", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
-            { no: 2, name: "stripPadding", kind: "scalar", T: 8 /*ScalarType.BOOL*/ }
+            { no: 2, name: "stripPadding", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
+            { no: 3, name: "output", kind: "enum", T: () => ["DataType", DataType] }
         ]);
     }
     create(value?: PartialMessage<Base64Config>): Base64Config {
-        const message = { urlSafe: false, stripPadding: false };
+        const message = { urlSafe: false, stripPadding: false, output: 0 };
         globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
         if (value !== undefined)
             reflectionMergePartial<Base64Config>(this, message, value);
@@ -430,6 +484,9 @@ class Base64Config$Type extends MessageType<Base64Config> {
                     break;
                 case /* bool stripPadding */ 2:
                     message.stripPadding = reader.bool();
+                    break;
+                case /* DataType output */ 3:
+                    message.output = reader.int32();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -449,6 +506,9 @@ class Base64Config$Type extends MessageType<Base64Config> {
         /* bool stripPadding = 2; */
         if (message.stripPadding !== false)
             writer.tag(2, WireType.Varint).bool(message.stripPadding);
+        /* DataType output = 3; */
+        if (message.output !== 0)
+            writer.tag(3, WireType.Varint).int32(message.output);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -661,3 +721,50 @@ class StringConfig$Type extends MessageType<StringConfig> {
  * @generated MessageType for protobuf message StringConfig
  */
 export const StringConfig = new StringConfig$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class CompressionConfig$Type extends MessageType<CompressionConfig> {
+    constructor() {
+        super("CompressionConfig", [
+            { no: 1, name: "output", kind: "enum", T: () => ["DataType", DataType] }
+        ]);
+    }
+    create(value?: PartialMessage<CompressionConfig>): CompressionConfig {
+        const message = { output: 0 };
+        globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
+        if (value !== undefined)
+            reflectionMergePartial<CompressionConfig>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: CompressionConfig): CompressionConfig {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* DataType output */ 1:
+                    message.output = reader.int32();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: CompressionConfig, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* DataType output = 1; */
+        if (message.output !== 0)
+            writer.tag(1, WireType.Varint).int32(message.output);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message CompressionConfig
+ */
+export const CompressionConfig = new CompressionConfig$Type();

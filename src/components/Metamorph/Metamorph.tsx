@@ -3,8 +3,8 @@ import Grid from '@mui/material/Grid';
 
 import Box from '@mui/material/Box';
 import CodeView from 'components/CodeView/CodeView';
-import {Button, IconButton, ListSubheader, MenuItem, Paper, Stack, Typography} from "@mui/material";
-import {DecodeConfig, EncodeConfig} from "./QueryParamState";
+import {Alert, Button, IconButton, ListSubheader, MenuItem, Paper, Snackbar, Stack, Typography} from "@mui/material";
+import {DecodeUrlState, EncodeUrlState} from "./QueryParamState";
 import Checkbox from '@mui/material/Checkbox';
 import Select, {SelectChangeEvent} from '@mui/material/Select';
 import {AvailableAction, Data, StringData} from "../ProcessingActions/ActionModels";
@@ -39,13 +39,31 @@ function Metamorph() {
   const location = useLocation()
   const navigate = useNavigate()
 
-  const [appConfig, setAppConfig] = useState<AppConfig>(DecodeConfig(location.search));
-  const [input, setInput] = useState<string>(window.localStorage.getItem('INPUT') || "");
+  const urlState = DecodeUrlState(location.search)
+  const [appConfig, setAppConfig] = useState<AppConfig>(urlState.config);
+  const [input, setInput] = useState<string>(urlState.input || window.localStorage.getItem('INPUT') || "");
   const [output, setOutput] = useState<AppOutput>({});
+  const [shareTipOpen, setShareTipOpen] = useState<boolean>(false);
+
+  const shareLink = () => {
+    const queryString = EncodeUrlState(appConfig, input)
+    navigate(`${location.pathname}?${queryString}`)
+    const fullLink = window.location.href.replaceAll(/\?.*/g, "") + "?" + queryString
+    navigator.clipboard.writeText(fullLink)
+        .then(() => setShareTipOpen(true))
+        .catch(err => alert('failed to copy to clipboard: ' + err))
+
+  }
+
+  const shareTipClose = (event: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setShareTipOpen(false);
+  };
 
   useEffect(() => {
-    console.log("encoding to url")
-    const queryString = EncodeConfig(appConfig)
+    const queryString = EncodeUrlState(appConfig)
     navigate(`${location.pathname}?${queryString}`)
   }, [appConfig]);
 
@@ -54,17 +72,14 @@ function Metamorph() {
   }, [input]);
 
   const doProcessing = useCallback(async () => {
-    console.log("in doProcessing")
     const actions = appConfig.actions
     const successfulActions:number[] = []
     let data:Data = new StringData(input)
     for(let actionId = 0;actionId < actions.length;actionId++) {
-      console.log("executing", actionId, data)
       const action = actions[actionId]
       try {
         data = await AVAILABLE_ACTIONS[action.code].processor(data, action.config || {})
       } catch (err) {
-        console.log("failed", err)
         setOutput({
           data,
           successfulActions,
@@ -77,7 +92,6 @@ function Metamorph() {
       }
       successfulActions.push(actionId)
     }
-    console.log("done", data)
     setOutput({
       data,
       successfulActions,
@@ -85,15 +99,12 @@ function Metamorph() {
   }, [input, appConfig, setOutput]);
 
   useEffect(() => {
-    console.log("triggered on input or appConfig")
     if(appConfig.autoProcess) {
-      console.log("is auto")
       doProcessing().catch(console.log)
     }
   },[input, appConfig, doProcessing])
 
   const changeAutoProcess = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("changing params", e.currentTarget.checked)
     if(appConfig.autoProcess != e.currentTarget.checked) {
       setAppConfig({
         ...appConfig,
@@ -136,7 +147,6 @@ function Metamorph() {
   const renderAction = (ai:ActionInstance, index:number) => {
     const updateMe = (updated:ActionInstance) => {
       appConfig.actions[index] = updated
-      console.log("set action value")
       setAppConfig({
         ...appConfig
       })
@@ -257,6 +267,9 @@ function Metamorph() {
                 {renderAvailableActions()}
               </Select>
             </Box>
+            <Box sx={{width:"100%",marginTop:'10pt'}} textAlign='center'>
+              <Button onClick={shareLink} variant='outlined'>Share Input & Actions</Button>
+            </Box>
           </Paper>
         </Grid>
         <Grid item xs style={{margin:'4pt',minWidth:'200pt'}}>
@@ -290,6 +303,14 @@ function Metamorph() {
           <CodeView text={output.data?.asText()||""} />
         </Grid>
       </Grid>
+      <Snackbar
+          open={shareTipOpen}
+          autoHideDuration={2000}
+          onClose={shareTipClose}>
+        <Alert severity="success">
+          Shareable link copied!
+        </Alert>
+      </Snackbar>
       <Typography align={"center"} fontStyle={"italic"} sx={{color:theme.palette.text.secondary,padding:"20pt"}}>Made by <a href={"https://fisherevans.com/"}>Fisher Evans</a>. Find the source code <a href={"https://github.com/fisherevans/metamorph"}>on Github</a>.</Typography>
     </Box>
   );

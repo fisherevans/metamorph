@@ -1,5 +1,5 @@
 import {ActionPanelProps} from "./ActionPanel";
-import {ActionCode, ActionInstance, ProcessorConfig, DataType} from "../AppConfig/model";
+import {ActionCode, DataType, ProcessorConfig} from "../AppConfig/model";
 import {Buffer} from "buffer";
 
 export interface Data {
@@ -75,8 +75,14 @@ export interface ActionGroup {
     codes: ActionCode[]
 }
 
-export type ConfigurableActionProps = {
-    currentAction: ActionInstance;
-    onUpdate:(updated:ActionInstance)=>void
-    onClose:()=>void
-};
+export function DataTypeLabel(dt:DataType|undefined):string {
+    if(dt === undefined) {
+        return "";
+    }
+    switch(dt) {
+        case DataType.STRING: return "String";
+        case DataType.BINARY: return "Binary";
+        case DataType.OBJECT: return "Object";
+        default: return "Unknown";
+    }
+}

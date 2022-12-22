@@ -1,4 +1,11 @@
-import {BinaryData, Data, IncompatibleInputDataType, InvalidOutputDataType, StringData} from "../ActionModels";
+import {
+    BinaryData,
+    Data,
+    DataTypeLabel,
+    IncompatibleInputDataType,
+    InvalidOutputDataType,
+    StringData
+} from "../ActionModels";
 import {CompressionConfig, DataType, ProcessorConfig} from "../../AppConfig/model";
 import {ActionPanelProps, ActionSelector, ActionTextField, SummaryTypography} from "../ActionPanel";
 import Box from "@mui/material/Box";
@@ -57,7 +64,7 @@ export function CompressGzip(input:Data,config:ProcessorConfig):Data {
 export function SummarizeCompressionConfig(props:ActionPanelProps) {
     return (
         <Box>
-            <SummaryTypography text={"Output: "+props.actionInstance.config?.compression?.output} mono={true} />
+            <SummaryTypography text={"Output: "+DataTypeLabel(props.actionInstance.config?.compression?.output)} />
         </Box>
     )
 }
@@ -73,8 +80,8 @@ export function ConfigureCompressionConfig(props:ActionPanelProps) {
             <ActionSelector label="Output Format"
                             value={props.actionInstance.config?.compression?.output || DataType.STRING}
                             options={[
-                                {label:"String",value:DataType.STRING},
-                                {label:"Binary",value:DataType.BINARY}
+                                {label:DataTypeLabel(DataType.STRING),value:DataType.STRING},
+                                {label:DataTypeLabel(DataType.BINARY),value:DataType.BINARY}
                             ]}
                             update={updateOutput}/>
         </Box>

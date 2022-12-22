@@ -1,7 +1,13 @@
-import {BinaryData, Data, IncompatibleInputDataType, InvalidOutputDataType, StringData} from "../ActionModels";
+import {
+    BinaryData,
+    Data,
+    DataTypeLabel,
+    IncompatibleInputDataType,
+    InvalidOutputDataType,
+    StringData
+} from "../ActionModels";
 import {Buffer} from 'buffer';
 import {ActionCheckbox, ActionPanelProps, ActionSelector, SummaryTypography} from "../ActionPanel";
-import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import React from "react";
 import {Base64Config, DataType, ProcessorConfig} from "../../AppConfig/model";
@@ -92,8 +98,8 @@ export function ConfigureBase64(conf:{showOutput:boolean}) {
                     <ActionSelector label="Output Format"
                                     value={props.actionInstance.config?.base64?.output || DataType.STRING}
                                     options={[
-                                        {label:"String",value:DataType.STRING},
-                                        {label:"Binary",value:DataType.BINARY}
+                                        {label:DataTypeLabel(DataType.STRING),value:DataType.STRING},
+                                        {label:DataTypeLabel(DataType.BINARY),value:DataType.BINARY}
                                     ]}
                                     update={updateOutput}/>
                 )}
@@ -116,8 +122,7 @@ export function SummarizeBase64(conf:{showOutput:boolean}) {
             sum.push("Padding Stripped")
         }
         if (conf.showOutput) {
-            if(c?.output == DataType.STRING) sum.push("String")
-            if(c?.output == DataType.BINARY) sum.push("Binary")
+            sum.push(DataTypeLabel(c?.output))
         }
         if (sum.length == 0) {
             return <Box/>

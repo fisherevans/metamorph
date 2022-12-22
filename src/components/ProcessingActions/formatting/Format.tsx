@@ -33,7 +33,7 @@ function ensureInputObj(input:Data, stringFn:(s:string)=>object):object {
 export function ConfigureFormatting(props:ActionPanelProps) {
     const updateIndent = (v:string) => {
         const conf = EnsureFormattingConfig(props.actionInstance.config)
-        conf.indentDepth = parseInt(v)
+        conf.indentDepth = parseInt(v) || 0
         props.setActionInstance(props.actionInstance)
     }
     const updateSort = (v:boolean) => {
@@ -56,7 +56,7 @@ export function ConfigureFormatting(props:ActionPanelProps) {
 export function ConfigureFormattingIndent(props:ActionPanelProps) {
     const updateIndent = (v:string) => {
         const conf = EnsureFormattingConfig(props.actionInstance.config)
-        conf.indentDepth = parseInt(v)
+        conf.indentDepth = parseInt(v) || 0
         props.setActionInstance(props.actionInstance)
     }
     return (

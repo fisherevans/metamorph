@@ -3,7 +3,18 @@ import Grid from '@mui/material/Grid';
 
 import Box from '@mui/material/Box';
 import CodeView from 'components/CodeView/CodeView';
-import {Alert, Button, IconButton, ListSubheader, MenuItem, Paper, Snackbar, Stack, Typography} from "@mui/material";
+import {
+  Alert,
+  Button,
+  Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+  IconButton,
+  ListSubheader,
+  MenuItem,
+  Paper,
+  Snackbar,
+  Stack,
+  Typography
+} from "@mui/material";
 import {DecodeAppConfig, DecodeQueryStringState, EncodeUrlState} from "./ExternalAppState";
 import Checkbox from '@mui/material/Checkbox';
 import Select, {SelectChangeEvent} from '@mui/material/Select';
@@ -25,6 +36,7 @@ https://stackoverflow.com/questions/54069253/the-usestate-set-method-is-not-refl
 
 const LOCAL_STORAGE_CONFIG = "CONFIG"
 const LOCAL_STORAGE_INPUT = "INPUT"
+const LOCAL_STORAGE_SUBSEQUENT_VISIT = "SUBSEQUENT_VISIT"
 
 export interface ProcessingFailure {
   failedActionIndex:number
@@ -53,6 +65,7 @@ function Metamorph() {
   const [input, setInput] = useState<string>(urlState.input || window.localStorage.getItem(LOCAL_STORAGE_INPUT) || "");
   const [output, setOutput] = useState<AppOutput>({});
   const [shareTipOpen, setShareTipOpen] = useState<boolean>(false);
+  const [showDetails, setShowDetails] = useState<boolean>(window.localStorage.getItem(LOCAL_STORAGE_SUBSEQUENT_VISIT) == undefined);
 
   const shareLink = () => {
     const state = EncodeUrlState(appConfig, input)
@@ -68,6 +81,11 @@ function Metamorph() {
       return;
     }
     setShareTipOpen(false);
+  };
+
+  const closeDetails = () => {
+    window.localStorage.setItem(LOCAL_STORAGE_SUBSEQUENT_VISIT, "true");
+    setShowDetails(false);
   };
 
   useEffect(() => {
@@ -252,16 +270,19 @@ function Metamorph() {
               component="img"
               sx={{
                 width: "100%",
-                margin: "12pt 0",
+                marginTop: "12pt",
               }}
               alt="Metamorph: transform stuff"
               src="banner.png"
           />
-          <Paper elevation={4} sx={{padding:'10pt',position:'relative'}}>
+          <Box sx={{width:"100%",marginTop:'0pt'}} textAlign='center'>
+            <Button onClick={() => setShowDetails(true)} variant='text'>What is this?</Button>
+          </Box>
+          <Paper elevation={4} sx={{marginTop:'6pt',padding:'10pt',position:'relative'}}>
             {appConfig.zoomed && <IconButton aria-label="Expand Controls" sx={zoomButtonSx} onClick={() => changeZoom(false)}><ZoomInMapIcon /></IconButton>}
             {!appConfig.zoomed && <IconButton aria-label="Contract Controls" sx={zoomButtonSx} onClick={() => changeZoom(true)}><ZoomOutMapIcon /></IconButton>}
             <Stack direction={'row'} alignItems="center" style={{paddingTop:"8pt"}}>
-              <Button fullWidth disabled={appConfig.autoProcess} onClick={doProcessing} variant="contained">Process</Button>
+              <Button fullWidth /*disabled={appConfig.autoProcess}*/ onClick={doProcessing} variant="contained">Process</Button>
               <Checkbox checked={appConfig.autoProcess} onChange={changeAutoProcess} size={'small'} />
               <Typography sx={{fontSize:'10pt',fontStyle:'italic'}}>Auto</Typography>
             </Stack>
@@ -322,6 +343,35 @@ function Metamorph() {
           Shareable link copied!
         </Alert>
       </Snackbar>
+      <Dialog
+          open={showDetails}
+          onClose={closeDetails}>
+        <DialogTitle>
+          {"What is Metamorph?"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{padding:'5pt',marginBottom:'10pt'}}>
+            Metamorph is a client-side-only application that allows you to define a set of repeatable data
+            transformations. The actions you configure are maintained in the URL allowing you to bookmark your creations
+            for later use.
+          </DialogContentText>
+          <DialogContentText sx={{padding:'5pt',marginBottom:'10pt'}}>
+            Metamorph can be used to simply format JSON, decode Base64, or do a regex search-and-replace. Or, chain the
+            available actions together into a single complex transformation. You can even query datastructures using
+            JQ, or decompress GZIP data blobs.
+          </DialogContentText>
+          <DialogContentText sx={{padding:'5pt',marginBottom:'10pt'}}>
+            This tool was built out of love (and frustration) when dealing with highly nested, encoded, compressed data.
+            Especially when debugging issues. If theres a feature you would like to see added (or if you have a
+            complaint), please share them with me over on <a href={"https://github.com/fisherevans/metamorph/issues/new"} style={{color:theme.palette.primary.light}}>Github</a>! :)
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeDetails} variant={"contained"}>
+            Cool - Let me try it!
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Typography align={"center"} fontStyle={"italic"} sx={{color:theme.palette.text.secondary,padding:"20pt"}}>Made by <a href={"https://fisherevans.com/"}>Fisher Evans</a>. Find the source code <a href={"https://github.com/fisherevans/metamorph"}>on Github</a>.</Typography>
     </Box>
   );

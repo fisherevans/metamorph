@@ -197,6 +197,10 @@ export enum ActionCode {
      */
     PARSE_JWT = 34,
     /**
+     * @generated from protobuf enum value: PARSE_URL = 35;
+     */
+    PARSE_URL = 35,
+    /**
      * @generated from protobuf enum value: QUERY_OBJECT = 41;
      */
     QUERY_OBJECT = 41,

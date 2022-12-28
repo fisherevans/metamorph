@@ -38,7 +38,7 @@ import {
     SummarizeRegexReplace
 } from "./regex/Regex";
 import {
-    ParseJSON,
+    ParseJSON, ParseURL,
     ParseXML,
     ParseYAML
 } from "./parsing/Common";
@@ -163,6 +163,11 @@ registerAvailableAction({
     code: ActionCode.PARSE_JWT,
     label: "Parse JWT",
     processor: ParseJWT,
+})
+registerAvailableAction({
+    code: ActionCode.PARSE_URL,
+    label: "Parse URL",
+    processor: ParseURL,
 })
 
 // ======================================================================================================= Formatting

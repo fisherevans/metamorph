@@ -17,6 +17,7 @@ enum ActionCode {
   PARSE_YAML = 32;
   PARSE_XML = 33;
   PARSE_JWT = 34;
+  PARSE_URL = 35;
 
   QUERY_OBJECT = 41;
   QUERY_JQ = 42;

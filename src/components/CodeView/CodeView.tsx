@@ -56,7 +56,7 @@ function CodeView(props: CodeViewProps) {
               resize:'none',
               width:'100%',
               padding:'1pt 4pt',
-              overflowX:'auto',
+              //overflowX:'auto',
               boxSizing:'border-box',
               borderRadius: '0pt 3pt 3pt 0pt',
               fontFamily:'"JetBrains Mono",monospace',

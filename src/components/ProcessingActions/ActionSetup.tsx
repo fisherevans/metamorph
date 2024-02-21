@@ -113,8 +113,8 @@ registerAvailableAction({
     summaryPanel: SummarizeCompressionConfig,
 })
 registerAvailableAction({
-    code: ActionCode.COMPRESS_GZIP,
-    label: "Compress - GZip",
+    code: ActionCode.COMPRESS,
+    label: "Compress",
     processor: CompressGzip,
     initConfig: EnsureCompressionConfig,
     editPanel: ConfigureCompressionConfig,

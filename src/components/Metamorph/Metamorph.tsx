@@ -7,7 +7,7 @@ import {
   Alert,
   Button,
   Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
-  IconButton,
+  IconButton, Link,
   ListSubheader,
   MenuItem,
   Paper,
@@ -27,6 +27,7 @@ import ZoomOutMapIcon from '@mui/icons-material/ZoomOutMap';
 import ZoomInMapIcon from '@mui/icons-material/ZoomInMap';
 import { useTheme } from "@mui/material/styles";
 import {ActionInstance, AppConfig, ProcessorConfig} from "../AppConfig/model";
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 /*
 Notes:
@@ -67,12 +68,24 @@ function Metamorph() {
   const [shareTipOpen, setShareTipOpen] = useState<boolean>(false);
   const [showDetails, setShowDetails] = useState<boolean>(window.localStorage.getItem(LOCAL_STORAGE_SUBSEQUENT_VISIT) == undefined);
 
+  const reset = () => {
+    setAppConfig({
+      ...appConfig,
+      actions: []
+    })
+  }
+
   const shareLink = () => {
     const state = EncodeUrlState(appConfig, input)
     navigate(`${location.pathname}?${state.queryString}`)
     const fullLink = window.location.href.replaceAll(/\?.*/g, "") + "?" + state.queryString
     navigator.clipboard.writeText(fullLink)
         .then(() => setShareTipOpen(true))
+        .catch(err => alert('failed to copy to clipboard: ' + err))
+  }
+
+  const copyOutput = () => {
+    navigator.clipboard.writeText(output.data?.asText()||"")
         .catch(err => alert('failed to copy to clipboard: ' + err))
   }
 
@@ -300,24 +313,27 @@ function Metamorph() {
               </Select>
             </Box>
             <Box sx={{width:"100%",marginTop:'10pt'}} textAlign='center'>
-              <Button onClick={shareLink} variant='outlined'>Share Input & Actions</Button>
+              <Button onClick={shareLink} variant='outlined' sx={{margin:'6pt'}}>Share Input & Actions</Button>
+              <Button onClick={reset} variant='outlined' sx={{margin:'6pt'}} color="error">Reset</Button>
             </Box>
           </Paper>
         </Grid>
         <Grid item xs style={{margin:'4pt',minWidth:'200pt'}}>
-          <Typography variant={"h5"} align={"center"}>Output</Typography>
+          <Typography variant={"h5"} align={"center"}>
+            Output
+            <IconButton aria-label="Copy Output" onClick={copyOutput} sx={{color:theme.palette.primary.light}}><ContentCopyIcon /></IconButton>
+          </Typography>
           {output.failedAction != undefined && appConfig.actions.length > output.failedAction.failedActionIndex && (
               <Box>
                 <Paper sx={{padding:'10pt',margin:'4pt',marginBottom:'15pt',backgroundColor:theme.palette.error.dark}}>
                   <Typography variant={'h6'}>Failure! Could not <b>{AVAILABLE_ACTIONS[appConfig.actions[output.failedAction.failedActionIndex].code].label}</b></Typography>
                   <Typography>Received the following error when processing action #{output.failedAction.failedActionIndex+1}:</Typography>
                   <Paper sx={{padding:'10pt',margin:'6pt',backgroundColor:theme.palette.background.paper}}>
-                    <Typography style={{fontFamily:'"JetBrains Mono",monospace',fontSize:'10pt',wordWrap:'break-word'}}>
+                    <Typography style={{fontFamily:'"JetBrains Mono",monospace',fontSize:'10pt',wordWrap:'break-word',whiteSpace:'pre'}}>
                       {typeof output.failedAction.error === 'string' && output.failedAction.error+"" }
                       {typeof output.failedAction.error === 'object' && <span>
                         {output.failedAction.error.message}
-                        <br />
-                        {output.failedAction.error.stack}
+                        {console.log(output.failedAction.error)}
                       </span>}
                       {/*  {JSON.stringify(err, Object.getOwnPropertyNames(err), 2)}  */}
                     </Typography>
@@ -372,7 +388,7 @@ function Metamorph() {
           </Button>
         </DialogActions>
       </Dialog>
-      <Typography align={"center"} fontStyle={"italic"} sx={{color:theme.palette.text.secondary,padding:"20pt"}}>Made by <a href={"https://fisherevans.com/"}>Fisher Evans</a>. Find the source code <a href={"https://github.com/fisherevans/metamorph"}>on Github</a>.</Typography>
+      <Typography align={"center"} fontStyle={"italic"} sx={{color:theme.palette.text.secondary,padding:"20pt"}}>Made by <Link href={"https://fisherevans.com/"} color={theme.palette.primary.light}>Fisher Evans</Link>. Find the source code <Link href={"https://github.com/fisherevans/metamorph"} color={theme.palette.primary.light}>on Github</Link>.</Typography>
     </Box>
   );
 }

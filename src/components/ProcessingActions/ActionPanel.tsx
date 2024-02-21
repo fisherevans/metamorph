@@ -159,7 +159,7 @@ export function ActionSelector<T>(props:{label:string, value?:T, options:{label:
         options.push(<MenuItem key={option.label} value={option.value as any}>{option.label}</MenuItem>)
     })
     return <Stack direction={"row"} alignItems={'center'}>
-        <Typography>Output:</Typography>
+        <Typography>{props.label}:</Typography>
         <Select displayEmpty value={props.value as any} onChange={localUpdate} sx={{margin:'2pt 4pt'}} size={'small'}>
             {options}
         </Select>

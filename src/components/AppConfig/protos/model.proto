@@ -33,7 +33,7 @@ enum ActionCode {
 
   DECOMPRESS = 91;
 
-  COMPRESS_GZIP = 101;
+  COMPRESS = 101;
 }
 
 enum DataType {
@@ -41,6 +41,12 @@ enum DataType {
   STRING = 1;
   OBJECT = 2;
   BINARY = 3;
+}
+
+enum CompressionEngine {
+  UNSET_COMPRESSION_ENGINE = 0;
+  FFLATE = 1;
+  ZSTD = 2;
 }
 
 message AppConfig {
@@ -90,4 +96,5 @@ message StringConfig {
 
 message CompressionConfig {
   DataType output = 1;
+  CompressionEngine engine = 2;
 }

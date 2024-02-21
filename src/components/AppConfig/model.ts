@@ -143,6 +143,10 @@ export interface CompressionConfig {
      * @generated from protobuf field: DataType output = 1;
      */
     output: DataType;
+    /**
+     * @generated from protobuf field: CompressionEngine engine = 2;
+     */
+    engine: CompressionEngine;
 }
 /**
  * @generated from protobuf enum ActionCode
@@ -233,9 +237,9 @@ export enum ActionCode {
      */
     DECOMPRESS = 91,
     /**
-     * @generated from protobuf enum value: COMPRESS_GZIP = 101;
+     * @generated from protobuf enum value: COMPRESS = 101;
      */
-    COMPRESS_GZIP = 101
+    COMPRESS = 101
 }
 /**
  * @generated from protobuf enum DataType
@@ -257,6 +261,23 @@ export enum DataType {
      * @generated from protobuf enum value: BINARY = 3;
      */
     BINARY = 3
+}
+/**
+ * @generated from protobuf enum CompressionEngine
+ */
+export enum CompressionEngine {
+    /**
+     * @generated from protobuf enum value: UNSET_COMPRESSION_ENGINE = 0;
+     */
+    UNSET_COMPRESSION_ENGINE = 0,
+    /**
+     * @generated from protobuf enum value: FFLATE = 1;
+     */
+    FFLATE = 1,
+    /**
+     * @generated from protobuf enum value: ZSTD = 2;
+     */
+    ZSTD = 2
 }
 // @generated message type with reflection information, may provide speed optimized methods
 class AppConfig$Type extends MessageType<AppConfig> {
@@ -729,11 +750,12 @@ export const StringConfig = new StringConfig$Type();
 class CompressionConfig$Type extends MessageType<CompressionConfig> {
     constructor() {
         super("CompressionConfig", [
-            { no: 1, name: "output", kind: "enum", T: () => ["DataType", DataType] }
+            { no: 1, name: "output", kind: "enum", T: () => ["DataType", DataType] },
+            { no: 2, name: "engine", kind: "enum", T: () => ["CompressionEngine", CompressionEngine] }
         ]);
     }
     create(value?: PartialMessage<CompressionConfig>): CompressionConfig {
-        const message = { output: 0 };
+        const message = { output: 0, engine: 0 };
         globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
         if (value !== undefined)
             reflectionMergePartial<CompressionConfig>(this, message, value);
@@ -746,6 +768,9 @@ class CompressionConfig$Type extends MessageType<CompressionConfig> {
             switch (fieldNo) {
                 case /* DataType output */ 1:
                     message.output = reader.int32();
+                    break;
+                case /* CompressionEngine engine */ 2:
+                    message.engine = reader.int32();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -762,6 +787,9 @@ class CompressionConfig$Type extends MessageType<CompressionConfig> {
         /* DataType output = 1; */
         if (message.output !== 0)
             writer.tag(1, WireType.Varint).int32(message.output);
+        /* CompressionEngine engine = 2; */
+        if (message.engine !== 0)
+            writer.tag(2, WireType.Varint).int32(message.engine);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

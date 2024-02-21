@@ -6,11 +6,11 @@ import {
     InvalidOutputDataType,
     StringData
 } from "../ActionModels";
-import {CompressionConfig, DataType, ProcessorConfig} from "../../AppConfig/model";
-import {ActionPanelProps, ActionSelector, ActionTextField, SummaryTypography} from "../ActionPanel";
+import {CompressionConfig, CompressionEngine, DataType, ProcessorConfig} from "../../AppConfig/model";
+import {ActionPanelProps, ActionSelector, SummaryTypography} from "../ActionPanel";
 import Box from "@mui/material/Box";
-import {decompressSync, gzipSync} from 'fflate';
-
+import {decompressSync as fflateDecompress, gzipSync as fflateCompress} from 'fflate';
+import {compress as zstdCompress, decompress as zstdDecompress } from '@bokuweb/zstd-wasm';
 
 import React from "react";
 import {Buffer} from "buffer";
@@ -20,6 +20,7 @@ export function EnsureCompressionConfig(procConf?:ProcessorConfig):CompressionCo
     if(procConf.compression === undefined) {
         procConf.compression = {
             output:DataType.BINARY,
+            engine:CompressionEngine.FFLATE,
         }
     }
     return procConf.compression
@@ -35,7 +36,7 @@ function createOutput(format:DataType, output:Uint8Array):Data {
     }
 }
 
-export function Decompress(input:Data,config:ProcessorConfig):Data {
+export function Decompress(input:Data,config:ProcessorConfig):Promise<Data> {
     const conf = EnsureCompressionConfig(config)
     let data:Uint8Array
     if(input.getType() == DataType.STRING) {
@@ -45,10 +46,18 @@ export function Decompress(input:Data,config:ProcessorConfig):Data {
     } else {
         throw IncompatibleInputDataType(input)
     }
-    return createOutput(conf.output, decompressSync(data))
+    let result:Promise<Data>
+    if(config.compression?.engine == CompressionEngine.FFLATE) {
+        result = Promise.resolve(createOutput(conf.output, fflateDecompress(data)))
+    } else if(config.compression?.engine == CompressionEngine.ZSTD) {
+        result = Promise.resolve(createOutput(conf.output, new Uint8Array(zstdDecompress(data))))
+    } else {
+        throw IncompatibleInputDataType(input)
+    }
+    return result
 }
 
-export function CompressGzip(input:Data,config:ProcessorConfig):Data {
+export function CompressGzip(input:Data,config:ProcessorConfig):Promise<Data> {
     const conf = EnsureCompressionConfig(config)
     let data:Uint8Array
     if(input.getType() == DataType.STRING) {
@@ -58,13 +67,35 @@ export function CompressGzip(input:Data,config:ProcessorConfig):Data {
     } else {
         throw IncompatibleInputDataType(input)
     }
-    return createOutput(conf.output, gzipSync(data))
+    let result:Promise<Data>
+    if(config.compression?.engine == CompressionEngine.FFLATE) {
+        result = Promise.resolve(createOutput(conf.output, fflateCompress(data)))
+    } else if(config.compression?.engine == CompressionEngine.ZSTD) {
+        result = Promise.resolve(createOutput(conf.output, zstdCompress(data)))
+    } else {
+        throw IncompatibleInputDataType(input)
+    }
+    return result
+}
+
+export function CompressingEngineLabel(e:CompressionEngine|undefined):string {
+    if(e === undefined) {
+        return "";
+    }
+    switch(e) {
+        case CompressionEngine.ZSTD: return "Zstandard (zstd)";
+        case CompressionEngine.FFLATE: return "FFlate (gzip)";
+        default: return "Unknown";
+    }
 }
 
 export function SummarizeCompressionConfig(props:ActionPanelProps) {
     return (
         <Box>
-            <SummaryTypography text={"Output: "+DataTypeLabel(props.actionInstance.config?.compression?.output)} />
+            <SummaryTypography text={
+                "Output: "+DataTypeLabel(props.actionInstance.config?.compression?.output) +
+                ", Engine: "+CompressingEngineLabel(props.actionInstance.config?.compression?.engine)
+            } />
         </Box>
     )
 }
@@ -73,6 +104,11 @@ export function ConfigureCompressionConfig(props:ActionPanelProps) {
     const updateOutput = (v: DataType) => {
         const conf = EnsureCompressionConfig(props.actionInstance.config)
         conf.output = v
+        props.setActionInstance(props.actionInstance)
+    }
+    const updateEngine = (e: CompressionEngine) => {
+        const conf = EnsureCompressionConfig(props.actionInstance.config)
+        conf.engine = e
         props.setActionInstance(props.actionInstance)
     }
     return (
@@ -84,6 +120,13 @@ export function ConfigureCompressionConfig(props:ActionPanelProps) {
                                 {label:DataTypeLabel(DataType.BINARY),value:DataType.BINARY}
                             ]}
                             update={updateOutput}/>
+            <ActionSelector label="Engine"
+                            value={props.actionInstance.config?.compression?.engine || CompressionEngine.FFLATE}
+                            options={[
+                                {label:CompressingEngineLabel(CompressionEngine.FFLATE),value:CompressionEngine.FFLATE},
+                                {label:CompressingEngineLabel(CompressionEngine.ZSTD),value:CompressionEngine.ZSTD}
+                            ]}
+                            update={updateEngine}/>
         </Box>
     )
 }

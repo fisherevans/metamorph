@@ -1,0 +1,36 @@
+name: CF Pages deploy alert
+
+# Cloudflare Pages builds this site on push to main. CF's GitHub App reports
+# build results as a "Cloudflare Pages" *check run* (success/failure) - it does
+# NOT create GitHub Deployments or legacy commit statuses, so we hook the Checks
+# API rather than `deployment_status`/`status`. This fires near-instantly when a
+# build finishes and only on failure, then pings Fisher in the Discord alerts
+# channel (same webhook Datadog uses). See nottingham-cloud systems/cloudflare.md.
+on:
+  check_run:
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    if: >-
+      github.event.check_run.name == 'Cloudflare Pages' &&
+      github.event.check_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post failure to Discord
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_DEPLOY_WEBHOOK }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.event.check_run.head_sha }}
+          BRANCH: ${{ github.event.check_run.check_suite.head_branch }}
+          DETAILS: ${{ github.event.check_run.details_url }}
+        run: |
+          short="${SHA:0:7}"
+          msg="🔴 <@552342078902763520> **${REPO}** Cloudflare Pages build **failed**
+          branch \`${BRANCH}\` · commit \`${short}\`
+          ${DETAILS}"
+          jq -n --arg c "$msg" '{content: $c, allowed_mentions: {parse: ["users"]}}' \
+            | curl -fsS -X POST "$WEBHOOK" -H 'Content-Type: application/json' -d @-

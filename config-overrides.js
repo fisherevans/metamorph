@@ -3,6 +3,8 @@ module.exports = function override (config, env) {
     let loaders = config.resolve
     loaders.fallback = {
         "fs": false,
+        // asn1.js (crypto-browserify -> browserify-sign) tries vm.runInThisContext and falls back in a catch
+        "vm": false,
         //"tls": false,
         //"net": false,
         //"http": require.resolve("stream-http"),
